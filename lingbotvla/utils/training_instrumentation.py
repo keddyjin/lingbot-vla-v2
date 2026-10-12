@@ -34,6 +34,9 @@ class TrainingInstrumentation:
         self.ranges_enabled = _enabled(os.environ.get("LINGBOT_PROFILE_RANGES", "0"))
         self.measure_dir = os.environ.get("LINGBOT_MEASURE_JSONL_DIR", "").strip()
         self.measure_enabled = bool(self.measure_dir)
+        self.memory_metrics_enabled = self.measure_enabled and _enabled(
+            os.environ.get("LINGBOT_MEASURE_MEMORY", "0")
+        )
         self.rank = int(train_args.global_rank)
         self.local_rank = int(train_args.local_rank)
         self.world_size = int(train_args.world_size)
@@ -189,6 +192,18 @@ class TrainingInstrumentation:
             "terminal_step": bool(terminal),
             "recorded_at_unix_ns": time.time_ns(),
         })
+        if self.memory_metrics_enabled:
+            # Allocator bookkeeping reads only, after the unchanged endpoint.
+            # Peaks cover this training process from startup: never reset here.
+            # Avoid mem_get_info, extra CUDA work, synchronization, or collectives.
+            self._pending["cuda_allocator_memory"] = {
+                "allocated_bytes": int(torch.cuda.memory_allocated()),
+                "reserved_bytes": int(torch.cuda.memory_reserved()),
+                "max_allocated_bytes": int(torch.cuda.max_memory_allocated()),
+                "max_reserved_bytes": int(torch.cuda.max_memory_reserved()),
+                "peak_scope": "process_lifetime_no_reset",
+                "captured_after_timing_endpoint": True,
+            }
         # This write occurs after the timing endpoint and is stated in metadata.
         self._stream.write(json.dumps(self._pending, ensure_ascii=False) + "\n")
         self._stream.flush()
