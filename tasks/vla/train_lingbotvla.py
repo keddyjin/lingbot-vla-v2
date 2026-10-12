@@ -333,6 +333,13 @@ class Arguments:
 
 def main():
     args = parse_args(Arguments)
+    benchmark_skip_checkpoint = os.environ.get("LINGBOT_BENCHMARK_SKIP_CHECKPOINT", "0").strip().lower() in {"1", "true", "yes", "on"}
+    if benchmark_skip_checkpoint:
+        if args.train.max_steps is None or not 0 < args.train.max_steps <= 1000:
+            raise ValueError("Checkpoint skipping is restricted to short benchmarks with max_steps <= 1000")
+        if args.train.enable_resume or args.train.load_checkpoint_path:
+            raise ValueError("Checkpoint-skipping benchmarks require a fresh pretrained-weight start")
+        logger.info_rank0("Short benchmark: LINGBOT_BENCHMARK_SKIP_CHECKPOINT=1; DCP/HF checkpoint writes disabled; training math unchanged")
     logger.info(f"Process rank: {args.train.global_rank}, world size: {args.train.world_size}")
     logger.info_rank0(json.dumps(asdict(args), indent=2))
     torch.cuda.set_device(f"cuda:{args.train.local_rank}")
@@ -600,7 +607,7 @@ def main():
         else None
     )
     hf_saver = AsyncHFCheckpointSaver(
-        enabled=args.train.async_save_hf_weights,
+        enabled=args.train.async_save_hf_weights and not benchmark_skip_checkpoint,
         max_pending=args.train.async_hf_max_pending,
         logger=logger,
         failure_log_path=hf_failure_log_path,
@@ -614,7 +621,7 @@ def main():
         epoch: int | None = None,
         epoch_step: int | None = None,
     ) -> None:
-        if args.train.global_rank != 0:
+        if benchmark_skip_checkpoint or args.train.global_rank != 0:
             return
         if not args.train.save_hf_weights or checkpoint_path is None:
             return
@@ -1099,7 +1106,7 @@ def main():
                                     current_pred_feats=future_video_current_preds,
                                 )
 
-            if args.train.save_steps and global_step % args.train.save_steps == 0:
+            if not benchmark_skip_checkpoint and args.train.save_steps and global_step % args.train.save_steps == 0:
                 helper.empty_cache()
                 save_checkpoint_path = os.path.join(args.train.save_checkpoint_path, f"global_step_{global_step}")
                 
@@ -1152,7 +1159,7 @@ def main():
         helper.print_device_mem_info(f"VRAM usage after epoch {epoch + 1}")
         if reached_max_steps:
             already_saved = args.train.save_steps and global_step % args.train.save_steps == 0
-            if not already_saved:
+            if not benchmark_skip_checkpoint and not already_saved:
                 helper.empty_cache()
                 save_checkpoint_path = os.path.join(args.train.save_checkpoint_path, f"global_step_{global_step}")
                 state = {
@@ -1180,7 +1187,7 @@ def main():
                 )
             instrumentation.finish_step(epoch_terminal=True, terminal=True)
             break
-        if args.train.save_epochs and (epoch + 1) % args.train.save_epochs == 0:
+        if not benchmark_skip_checkpoint and args.train.save_epochs and (epoch + 1) % args.train.save_epochs == 0:
             helper.empty_cache()
             save_checkpoint_path = os.path.join(args.train.save_checkpoint_path, f"global_step_{global_step}")
             state = {
@@ -1220,7 +1227,7 @@ def main():
     del optimizer, lr_scheduler
     helper.empty_cache()
     # Ensure the last checkpoint has an HF conversion scheduled, then wait for async work.
-    if save_checkpoint_path is not None:
+    if not benchmark_skip_checkpoint and save_checkpoint_path is not None:
         save_hf_checkpoint_best_effort(
             save_checkpoint_path,
             state,
