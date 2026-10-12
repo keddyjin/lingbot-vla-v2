@@ -13,12 +13,33 @@
 # limitations under the License.
 
 import torch
+import os
 import torch.nn.functional as F  # noqa: N812
 from packaging.version import Version
 import einops
 
 FLEX_SPARSE_BLOCK_SIZE = 128
-FLEX_KERNEL_OPTIONS = {"BLOCK_M": 32, "BLOCK_N": 64, "num_warps": 4, "num_stages": 2}
+def _flex_kernel_options_from_env():
+    options = {"BLOCK_M": 32, "BLOCK_N": 64, "num_warps": 4, "num_stages": 2}
+    tile = os.environ.get("LINGBOT_FLEX_BWD_TILE", "off").strip().lower()
+    if tile in {"", "off", "0"}:
+        return options
+    tiles = {"32x32": (32, 32), "32x64": (32, 64), "64x64": (64, 64)}
+    if tile not in tiles:
+        raise ValueError("LINGBOT_FLEX_BWD_TILE must be off, 32x32, 32x64, or 64x64")
+    block_m, block_n = tiles[tile]
+    # Torch 2.8 removes bwd_ only for BWD; FWD drops these keys entirely.
+    # dK/dV uses M1/N1, dQ uses M2/N2 with the dimensions reversed.
+    options.update({
+        "bwd_BLOCK_M1": block_m,
+        "bwd_BLOCK_N1": block_n,
+        "bwd_BLOCK_M2": block_n,
+        "bwd_BLOCK_N2": block_m,
+    })
+    return options
+
+
+FLEX_KERNEL_OPTIONS = _flex_kernel_options_from_env()
 
 if Version(torch.__version__) > Version("2.5.0"):
     # Ffex attention is only available from torch 2.5 onwards
