@@ -1,5 +1,6 @@
 import einops
 import torch
+import os
 from torch import Tensor, nn
 import torch.nn.functional as F
 from typing import List, Optional, Tuple, Union
@@ -48,6 +49,50 @@ except Exception:
 
 
 logger = logging.get_logger(__name__)
+
+
+def _deepstack_index_reuse_enabled():
+    value = os.environ.get("LINGBOT_DEEPSTACK_INDICES", "0").strip().lower()
+    if value not in {"0", "off", "false", "1", "on", "true"}:
+        raise ValueError("LINGBOT_DEEPSTACK_INDICES must be 0/off/false or 1/on/true")
+    return value in {"1", "on", "true"}
+
+@torch.compiler.disable
+def _prepare_deepstack_indices(visual_pos_masks, hidden_states):
+    if visual_pos_masks.dtype != torch.bool or visual_pos_masks.ndim != 2:
+        raise ValueError("DeepStack index reuse requires the actual 2D boolean visual mask")
+    if hidden_states.ndim != 3 or tuple(visual_pos_masks.shape) != tuple(hidden_states.shape[:2]):
+        raise ValueError("DeepStack visual mask and prefix hidden-state shape mismatch")
+    # Derive unique row-major indices from this forward's actual mask. This
+    # retains one nonzero/shape synchronization, never assumes all cameras.
+    return visual_pos_masks.reshape(-1).nonzero(as_tuple=False).squeeze(1).to(hidden_states.device)
+
+@torch.compiler.disable
+def _cast_deepstack_features_materialized(visual_embeds, hidden_states):
+    # Preserve the original feature cast as a real Tensor boundary before
+    # compiled add, including its dtype boundary in the backward graph.
+    return visual_embeds.to(hidden_states.device, hidden_states.dtype)
+
+
+def _apply_deepstack_indices_inplace(hidden_states, indices, visual_embeds):
+    if visual_embeds.dtype != hidden_states.dtype:
+        visual_embeds = _cast_deepstack_features_materialized(visual_embeds, hidden_states)
+    else:
+        visual_embeds = visual_embeds.to(hidden_states.device, hidden_states.dtype)
+    if visual_embeds.ndim != 2 or visual_embeds.shape[0] != indices.numel() or visual_embeds.shape[1] != hidden_states.shape[-1]:
+        raise ValueError("DeepStack feature rows/dim must match mask-derived unique indices")
+    # A view is mandatory: retain HF's in-place update and object identity.
+    # Non-contiguous inputs use the unchanged HF fallback at the call site.
+    flat_hidden = hidden_states.view(-1, hidden_states.shape[-1])
+    local_this = flat_hidden.index_select(0, indices).clone() + visual_embeds
+    flat_hidden.index_copy_(0, indices, local_this)
+    return hidden_states
+
+
+@torch.compiler.disable
+def _increment_alignment_steps_uncompiled(module):
+    """Keep the monitoring count while excluding its changing Python guard."""
+    module.steps += 1
 
 
 class QwenvlWithExpertV2Config(PretrainedConfig):
@@ -124,6 +169,7 @@ class QwenvlWithExpertV2Model(PreTrainedModel):
     def __init__(self, config: QwenvlWithExpertV2Config, eval=False):
         super().__init__(config=config)
         self.config = config
+        self._reuse_deepstack_indices = _deepstack_index_reuse_enabled()
         vlm_config = AutoConfig.from_pretrained(self.config.tokenizer_path)
         if self.config.vocab_size not in (0, 257152):
             vlm_config.text_config.vocab_size = self.config.vocab_size
@@ -295,17 +341,22 @@ class QwenvlWithExpertV2Model(PreTrainedModel):
                 value_states = torch.cat([past_key_values[layer_idx]["value_states"], value_states], dim=1)
         return key_states, value_states, past_key_values
 
-    def _apply_deepstack(self, hidden_states, layer_idx, visual_pos_masks, deepstack_visual_embeds):
+    def _apply_deepstack(self, hidden_states, layer_idx, visual_pos_masks, deepstack_visual_embeds, indices=None):
         if (
             deepstack_visual_embeds is not None
             and visual_pos_masks is not None
             and layer_idx < len(deepstack_visual_embeds)
         ):
-            hidden_states = self.qwenvl.model.language_model._deepstack_process(
-                hidden_states,
-                visual_pos_masks,
-                deepstack_visual_embeds[layer_idx],
-            )
+            if indices is not None and hidden_states.is_contiguous():
+                hidden_states = _apply_deepstack_indices_inplace(
+                    hidden_states, indices, deepstack_visual_embeds[layer_idx]
+                )
+            else:
+                hidden_states = self.qwenvl.model.language_model._deepstack_process(
+                    hidden_states,
+                    visual_pos_masks,
+                    deepstack_visual_embeds[layer_idx],
+                )
         return hidden_states
 
     def forward(
@@ -325,6 +376,15 @@ class QwenvlWithExpertV2Model(PreTrainedModel):
         num_layers = self.qwenvl.config.text_config.num_hidden_layers
         action_num_layers = self.config.qwen_expert_config.num_hidden_layers
         router_logits_list = []
+        deepstack_indices = None
+        if (
+            self._reuse_deepstack_indices
+            and deepstack_visual_embeds is not None
+            and len(deepstack_visual_embeds) > 0
+            and visual_pos_masks is not None
+            and inputs_embeds[0] is not None
+        ):
+            deepstack_indices = _prepare_deepstack_indices(visual_pos_masks, inputs_embeds[0])
 
         assert action_num_layers == num_layers, (
             "Action expert and VLM must have the same number of layers "
@@ -397,7 +457,7 @@ class QwenvlWithExpertV2Model(PreTrainedModel):
                     out_emb = models[i].layers[layer_idx](
                         hidden_states, att_output, start, end, output_atten=True
                     )
-                    out_emb = self._apply_deepstack(out_emb, layer_idx, visual_pos_masks, deepstack_visual_embeds)
+                    out_emb = self._apply_deepstack(out_emb, layer_idx, visual_pos_masks, deepstack_visual_embeds, deepstack_indices)
                 outputs_embeds.append(out_emb)
                 start = end
             inputs_embeds = outputs_embeds
@@ -478,6 +538,9 @@ class FlowMatchingV2(FlowMatchingV1):
         self.config.align_params = getattr(self.config, "align_params", None) or {}
         if self.config.align_params != {}:
             self.steps = 0
+            self._compile_step_counter_helper = os.environ.get(
+                "LINGBOT_COMPILE_STEP_COUNTER_HELPER", "0"
+            ).strip().lower() in {"1", "true", "yes", "on"}
             self.use_depth_align = True
             self.init_depth_heads(self.config.align_params)
             self.use_future_video = self.config.align_params.get("use_future_video", False)
@@ -887,7 +950,10 @@ class FlowMatchingV2(FlowMatchingV1):
                 align_metrics["align/future_video_loss_weighted"] = (loss_video * video_weight).detach()
                 align_metrics["align/video_loss"] = video_total_loss.detach()
                 align_metrics["align/video_loss_weighted"] = loss_future_video.detach()
-            self.steps += 1
+            if self._compile_step_counter_helper:
+                _increment_alignment_steps_uncompiled(self)
+            else:
+                self.steps += 1
         else:
             loss_depth = 0
             loss_future_depth = 0
