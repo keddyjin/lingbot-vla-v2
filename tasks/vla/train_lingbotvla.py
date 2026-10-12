@@ -33,6 +33,7 @@ from lingbotvla.models import build_foundation_model, build_processor, save_mode
 from lingbotvla.optim import build_lr_scheduler, build_muon_optimizer, build_optimizer
 from lingbotvla.optim import build_flex_shard_dist_muon_optimizer
 from lingbotvla.utils import helper
+from lingbotvla.utils.training_instrumentation import TrainingInstrumentation
 from lingbotvla.utils.async_hf_checkpoint import AsyncHFCheckpointSaver
 from lingbotvla.utils.arguments import EvalArguments, DataArguments, ModelArguments, TrainingArguments, parse_args, save_args
 from lingbotvla.utils.dist_utils import all_reduce
@@ -335,6 +336,7 @@ def main():
     logger.info(f"Process rank: {args.train.global_rank}, world size: {args.train.world_size}")
     logger.info_rank0(json.dumps(asdict(args), indent=2))
     torch.cuda.set_device(f"cuda:{args.train.local_rank}")
+    instrumentation = TrainingInstrumentation(args.train)
     dist.init_process_group(backend="nccl")
     helper.set_seed(args.train.seed, args.train.enable_full_determinism)
     if args.train.local_rank == 0:
@@ -726,11 +728,15 @@ def main():
             )
         data_iterator = iter(train_dataloader)
         for epoch_step in range(start_step, args.train.train_steps):
+            instrumentation.finish_step()
             current_epoch_step_for_eval = epoch_step + 1
             global_step += 1
+            instrumentation.start_step(global_step, epoch + 1, epoch_step + 1)
             try:
-                micro_batches: List[Dict[str, Any]] = next(data_iterator)
+                with instrumentation.range("data_wait"):
+                    micro_batches: List[Dict[str, Any]] = next(data_iterator)
             except StopIteration:
+                instrumentation.cancel_step()
                 logger.info(f"epoch:{epoch} Dataloader finished with drop_last {args.data.drop_last}")
                 break
 
@@ -749,15 +755,17 @@ def main():
             torch.cuda.synchronize()
             start_time = time.time()
             for micro_batch in micro_batches:
+                instrumentation.start_micro_batch()
                 future_video_targets = None
                 future_video_current_preds = None
                 future_video_cls_targets = None
                 future_video_current_dino = None
                 dataset_names = micro_batch.pop('rep_id', None)
                 environ_meter.add(micro_batch)
-                micro_batch = {
-                    k: v.cuda(non_blocking=True) if isinstance(v, torch.Tensor) else v for k, v in micro_batch.items()
-                }
+                with instrumentation.range("h2d"):
+                    micro_batch = {
+                        k: v.cuda(non_blocking=True) if isinstance(v, torch.Tensor) else v for k, v in micro_batch.items()
+                    }
                 future_video_effective_fps = micro_batch.pop('future_video_effective_fps', None)
                 depth_forward_time = 0
                 if use_depth_align:
@@ -766,18 +774,21 @@ def main():
                         pil_images = micro_batch.pop('pil_images', None)
                         future_pil_images = micro_batch.pop('future_pil_images', None) if (use_future_depth or use_future_video) else None
                         with torch.autocast("cuda", dtype=torch.bfloat16):
-                            depth_targets, cls_token = get_depth_target(depth_model_type, (moge_model, morgbd_model), pil_images)
+                            with instrumentation.range("current_depth_teacher"):
+                                depth_targets, cls_token = get_depth_target(depth_model_type, (moge_model, morgbd_model), pil_images)
                             if use_future_depth:
-                                future_depth_targets, future_cls_token = get_depth_target(depth_model_type, (moge_model, morgbd_model), future_pil_images)
+                                with instrumentation.range("future_depth_teacher"):
+                                    future_depth_targets, future_cls_token = get_depth_target(depth_model_type, (moge_model, morgbd_model), future_pil_images)
                         if use_future_video:
                             with torch.autocast("cuda", dtype=torch.bfloat16):
-                                future_video_target_bundle = get_video_target(
-                                    video_teacher,
-                                    pil_images,
-                                    future_pil_images,
-                                    args.train.align_params['video'],
-                                    effective_fps=future_video_effective_fps,
-                                )
+                                with instrumentation.range("video_teacher"):
+                                    future_video_target_bundle = get_video_target(
+                                        video_teacher,
+                                        pil_images,
+                                        future_pil_images,
+                                        args.train.align_params['video'],
+                                        effective_fps=future_video_effective_fps,
+                                    )
                                 if isinstance(future_video_target_bundle, dict):
                                     future_video_targets = future_video_target_bundle["patch"]
                                     future_video_cls_targets = future_video_target_bundle.get("cls")
@@ -790,7 +801,7 @@ def main():
                             future_video_target_rgb = future_pil_images
                         depth_forward_time = time.time() - depth_start_time
 
-                with model_fwd_context:
+                with instrumentation.range("forward"), model_fwd_context:
                     model_outputs = model(
                         **micro_batch,
                         depth_targets=depth_targets,
@@ -828,7 +839,7 @@ def main():
                     router_z_loss = loss_log.get("router_z_loss", loss_log.get("moe_zloss/weighted", 0))
                     avg_lang_length = micro_batch['lang_masks'].sum(dim=-1).float().mean()
 
-                with model_bwd_context:
+                with instrumentation.range("backward"), model_bwd_context:
                     loss.backward()
 
                 total_loss += loss.item()
@@ -843,6 +854,7 @@ def main():
                     total_seq_wise_loss += seq_wise_loss.item()
                 if not (isinstance(router_z_loss, int) or isinstance(router_z_loss, float)):
                     total_router_z_loss += router_z_loss.item() / len(micro_batches)
+                instrumentation.completed_micro_batch(micro_batch)
                 del micro_batch
             # --- TEMP gate-gradient probe (GATE_GRAD_PROBE=1): dump router gate grad
             # magnitude vs routed-expert grad, plus per-expert symmetry, pre-clip. ---
@@ -877,21 +889,23 @@ def main():
                                 f"[{_row.min():.1e},{_row.max():.1e}]{_eref}")
                 if args.train.local_rank == 0:
                     print(f"[GATE_GRAD_PROBE step={global_step}]\n  " + "\n  ".join(_lines), flush=True)
-            if global_step > args.train.stable_train_steps:
-                max_grad_norm = args.train.decayed_max_grad_norm
-            else:
-                max_grad_norm = args.train.max_grad_norm
-            if args.train.data_parallel_mode == "fsdp1":
-                grad_norm = model.clip_grad_norm_(max_grad_norm).item()
-            elif hasattr(model, '_ep_param_set'):
-                from lingbotvla.distributed.fsdp2.clip_grad_norm import ep_fsdp2_clip_grad_norm
-                grad_norm = ep_fsdp2_clip_grad_norm(model, max_grad_norm)
-            else:
-                grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm, foreach=True)
+            with instrumentation.range("grad_clip"):
+                if global_step > args.train.stable_train_steps:
+                    max_grad_norm = args.train.decayed_max_grad_norm
+                else:
+                    max_grad_norm = args.train.max_grad_norm
+                if args.train.data_parallel_mode == "fsdp1":
+                    grad_norm = model.clip_grad_norm_(max_grad_norm).item()
+                elif hasattr(model, '_ep_param_set'):
+                    from lingbotvla.distributed.fsdp2.clip_grad_norm import ep_fsdp2_clip_grad_norm
+                    grad_norm = ep_fsdp2_clip_grad_norm(model, max_grad_norm)
+                else:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm, foreach=True)
 
-            optimizer.step()
-            lr_scheduler.step()
-            optimizer.zero_grad()
+            with instrumentation.range("optimizer"):
+                optimizer.step()
+                lr_scheduler.step()
+                optimizer.zero_grad()
             if hasattr(grad_norm, "full_tensor"):
                 grad_norm = grad_norm.full_tensor().item()
 
@@ -902,6 +916,11 @@ def main():
             total_future_video_loss = total_future_video_loss / future_video_loss_weight
             torch.cuda.synchronize()
             delta_time = time.time() - start_time
+            instrumentation.completed_update(
+                delta_time,
+                visual_step=bool(use_depth_align and global_step % args.train.align_params['visual_steps'] == 0),
+                profile_step=bool(args.train.enable_profiling and max(1, args.train.profile_start_step - 1) <= global_step <= args.train.profile_end_step),
+            )
             all_lrs = lr_scheduler.get_last_lr()
             if args.train.use_moe_expert_lr and len(all_lrs) > 1:
                 lr = min(all_lrs)          # base (non-expert) lr
@@ -1046,9 +1065,7 @@ def main():
                     profiler.step()
                     if global_step == args.train.profile_end_step:
                         profiler.stop()
-                        helper.upload_trace(
-                            args.train.wandb_project, args.train.wandb_name, args.train.profile_trace_dir
-                        )
+                        logger.info_rank0(f"Profiling trace kept locally at {args.train.profile_trace_dir}.")
 
                 # loss.jsonl disabled to avoid NFS write blocking rank 0
                 # loss_record = {
@@ -1110,6 +1127,7 @@ def main():
                 }
                 if args.train.global_rank == 0:
                     writer.flush()
+                instrumentation.checkpoint("save_steps")
                 Checkpointer.save(args.train.save_checkpoint_path, state, global_steps=global_step)
                 dist.barrier()
                 logger.info_rank0(f"Distributed checkpoint saved at {save_checkpoint_path} successfully!")
@@ -1149,6 +1167,7 @@ def main():
                         "torch_rng_state": torch.get_rng_state(),
                     },
                 }
+                instrumentation.checkpoint("max_steps")
                 Checkpointer.save(args.train.save_checkpoint_path, state, global_steps=global_step)
                 dist.barrier()
                 logger.info_rank0(f"Distributed checkpoint saved at {save_checkpoint_path} successfully!")
@@ -1159,6 +1178,7 @@ def main():
                     current_epoch_for_eval,
                     current_epoch_step_for_eval,
                 )
+            instrumentation.finish_step(epoch_terminal=True, terminal=True)
             break
         if args.train.save_epochs and (epoch + 1) % args.train.save_epochs == 0:
             helper.empty_cache()
@@ -1175,6 +1195,7 @@ def main():
                     "torch_rng_state": torch.get_rng_state(),
                 },
             }
+            instrumentation.checkpoint("save_epochs")
             Checkpointer.save(args.train.save_checkpoint_path, state, global_steps=global_step)
             dist.barrier()
             logger.info_rank0(f"Distributed checkpoint saved at {save_checkpoint_path} successfully!")
@@ -1185,6 +1206,10 @@ def main():
                 current_epoch_for_eval,
                 current_epoch_step_for_eval,
             )
+
+        instrumentation.finish_step(
+            epoch_terminal=True, terminal=(epoch + 1 >= args.train.num_train_epochs)
+        )
 
     if max_steps_driven:
         data_loader_tqdm.close()
@@ -1207,6 +1232,7 @@ def main():
 
     dist.barrier()
     dist.destroy_process_group()
+    instrumentation.close()
 
 
 if __name__ == "__main__":
