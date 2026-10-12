@@ -14,6 +14,8 @@
 
 
 import types
+import json
+import os
 from functools import partial
 from typing import Any, Dict, List, Optional
 
@@ -47,6 +49,68 @@ if is_torch_version_greater_than("2.4"):
 
 
 logger = logging.get_logger(__name__)
+
+def _apply_selective_checkpoint_policy(model, enable_gradient_checkpointing):
+    policy = os.environ.get("LINGBOT_GC_POLICY", "official").strip().lower()
+    policies = {
+        "official", "action-off", "text-alternate",
+        "action-off-text-alternate", "text-off", "action-off-text-off",
+    }
+    if policy not in policies:
+        raise ValueError(f"Unknown LINGBOT_GC_POLICY: {policy!r}")
+    if policy == "official":
+        return None  # Keep all original behavior, including GC disabled.
+    if not enable_gradient_checkpointing:
+        raise ValueError("Selective LINGBOT_GC_POLICY requires enable_gradient_checkpointing=true")
+
+    def require_path(path):
+        current = model
+        for component in path.split("."):
+            current = getattr(current, component, None)
+            if current is None:
+                raise ValueError(f"Selective GC requires the exact LingBot-V2 path: {path}")
+        return list(current)
+
+    text = require_path("model.qwenvl_with_expert.qwenvl.model.language_model.layers")
+    action = require_path("model.qwenvl_with_expert.qwen_expert.model.layers")
+    vision = require_path("model.qwenvl_with_expert.qwenvl.model.visual.blocks")
+    if len(text) != 36 or len(action) != 36 or not vision:
+        raise ValueError("Selective GC requires 36 Qwen3 text and 36 Qwen2 action layers plus vision blocks")
+    groups = (("text", text, "Qwen3VLTextDecoderLayer"),
+              ("action", action, "Qwen2DecoderLayer"),
+              ("vision", vision, "Qwen3VLVisionBlock"))
+    # Validate every group before changing any flag. Do not silently apply a
+    # partial policy to another model or to a failed HF checkpoint setup.
+    for name, layers, expected_class in groups:
+        for index, layer in enumerate(layers):
+            if layer.__class__.__name__ != expected_class:
+                raise ValueError(f"Selective GC {name}[{index}] class mismatch: {layer.__class__.__name__}")
+            if getattr(layer, "gradient_checkpointing", None) is not True:
+                raise ValueError(f"Selective GC {name}[{index}] was not enabled by HF")
+            if not callable(getattr(layer, "_gradient_checkpointing_func", None)):
+                raise ValueError(f"Selective GC {name}[{index}] has no initialized HF checkpoint function")
+    vision_before = [layer.gradient_checkpointing for layer in vision]
+    if policy.startswith("action-off"):
+        for layer in action:
+            layer.gradient_checkpointing = False
+    if policy in {"text-alternate", "action-off-text-alternate"}:
+        for index, layer in enumerate(text):
+            layer.gradient_checkpointing = index % 2 == 0
+    elif policy in {"text-off", "action-off-text-off"}:
+        for layer in text:
+            layer.gradient_checkpointing = False
+
+    summary = {"policy": policy, "applied_before_fsdp": True}
+    for name, layers, _ in groups:
+        summary[name] = {
+            "enabled_indices": [index for index, layer in enumerate(layers) if layer.gradient_checkpointing],
+            "disabled_indices": [index for index, layer in enumerate(layers) if not layer.gradient_checkpointing],
+        }
+    if [layer.gradient_checkpointing for layer in vision] != vision_before:
+        raise RuntimeError("Selective GC changed vision checkpoint flags")
+    logger.info_rank0("Selective GC policy: " + json.dumps(summary, sort_keys=True))
+    return summary
+
 
 def _resolve(root: Any, paths: List[tuple[str, ...]]) -> tuple[Optional[Any], Optional[tuple[str, ...]]]:
     for path in paths:
@@ -122,6 +186,8 @@ def build_parallelize_model(
         model.gradient_checkpointing_enable(
             gradient_checkpointing_kwargs=gradient_checkpointing_kwargs
         )
+
+    _apply_selective_checkpoint_policy(model, enable_gradient_checkpointing)
 
     if parallel_state.tp_enabled:
         logger.info_rank0("Apply tensor parallel to the model.")
