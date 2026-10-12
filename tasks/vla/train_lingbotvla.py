@@ -334,9 +334,17 @@ class Arguments:
 def main():
     args = parse_args(Arguments)
     benchmark_skip_checkpoint = os.environ.get("LINGBOT_BENCHMARK_SKIP_CHECKPOINT", "0").strip().lower() in {"1", "true", "yes", "on"}
+    stop_after_steps = args.train.max_steps
+    benchmark_stop = os.environ.get("LINGBOT_BENCHMARK_STOP_STEPS", "").strip()
+    if benchmark_stop:
+        if not benchmark_skip_checkpoint:
+            raise ValueError("LINGBOT_BENCHMARK_STOP_STEPS requires checkpoint-skipping benchmark mode")
+        stop_after_steps = int(benchmark_stop)
+        if args.train.max_steps is None or stop_after_steps > args.train.max_steps:
+            raise ValueError("Benchmark stop must not exceed the configured training horizon")
     if benchmark_skip_checkpoint:
-        if args.train.max_steps is None or not 0 < args.train.max_steps <= 1000:
-            raise ValueError("Checkpoint skipping is restricted to short benchmarks with max_steps <= 1000")
+        if stop_after_steps is None or not 0 < stop_after_steps <= 1000:
+            raise ValueError("Checkpoint skipping is restricted to short benchmarks with at most 1000 updates")
         if args.train.enable_resume or args.train.load_checkpoint_path:
             raise ValueError("Checkpoint-skipping benchmarks require a fresh pretrained-weight start")
         args.train.save_steps = 0
@@ -344,6 +352,7 @@ def main():
         args.train.save_hf_weights = False
         args.train.async_save_hf_weights = False
         logger.info_rank0("Short benchmark: LINGBOT_BENCHMARK_SKIP_CHECKPOINT=1; DCP/HF checkpoint writes disabled; training math unchanged")
+        logger.info_rank0(f"Benchmark stop={stop_after_steps}; configured LR horizon max_steps={args.train.max_steps}")
     logger.info(f"Process rank: {args.train.global_rank}, world size: {args.train.world_size}")
     logger.info_rank0(json.dumps(asdict(args), indent=2))
     torch.cuda.set_device(f"cuda:{args.train.local_rank}")
@@ -714,12 +723,12 @@ def main():
         os.makedirs(args.train.save_checkpoint_path, exist_ok=True)
     reached_max_steps = False
     max_steps_driven = (
-        args.train.max_steps is not None
-        and args.train.max_steps < args.train.train_steps * args.train.num_train_epochs
+        stop_after_steps is not None
+        and stop_after_steps < args.train.train_steps * args.train.num_train_epochs
     )
     if max_steps_driven:
         data_loader_tqdm = trange(
-            args.train.max_steps,
+            stop_after_steps,
             bar_format="Step: {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]{postfix}",
             initial=global_step,
             disable=args.train.local_rank != 0,
@@ -1150,8 +1159,8 @@ def main():
                     current_epoch_step_for_eval,
                 )
 
-            if args.train.max_steps is not None and global_step >= args.train.max_steps:
-                logger.info_rank0(f"Reached max_steps={args.train.max_steps}, stopping training.")
+            if stop_after_steps is not None and global_step >= stop_after_steps:
+                logger.info_rank0(f"Reached stop_after_steps={stop_after_steps}, stopping training.")
                 reached_max_steps = True
                 break
 

@@ -18,3 +18,11 @@ each run to at most 1000 updates. Pretrained input and teacher weights are
 retained. Each profiler run retains its source commit, actual diff, raw trace,
 and analysis. Benchmark preparation/download time is tracked separately from
 completed real training.
+
+Set `LINGBOT_BENCHMARK_STOP_STEPS=31` for a short run while keeping the official
+`train.max_steps=50000`. The stop override affects progress and termination
+only; the LR scheduler still reads the configured production training horizon.
+It requires checkpoint-skipping mode, must be positive and at most 1000, and
+cannot exceed `train.max_steps`. With the override unset, existing training and
+short-benchmark behavior is preserved. This is functional experiment control,
+not an optimization or performance claim.
