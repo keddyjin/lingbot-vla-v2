@@ -339,6 +339,10 @@ def main():
             raise ValueError("Checkpoint skipping is restricted to short benchmarks with max_steps <= 1000")
         if args.train.enable_resume or args.train.load_checkpoint_path:
             raise ValueError("Checkpoint-skipping benchmarks require a fresh pretrained-weight start")
+        args.train.save_steps = 0
+        args.train.save_epochs = 0
+        args.train.save_hf_weights = False
+        args.train.async_save_hf_weights = False
         logger.info_rank0("Short benchmark: LINGBOT_BENCHMARK_SKIP_CHECKPOINT=1; DCP/HF checkpoint writes disabled; training math unchanged")
     logger.info(f"Process rank: {args.train.global_rank}, world size: {args.train.world_size}")
     logger.info_rank0(json.dumps(asdict(args), indent=2))
@@ -706,7 +710,7 @@ def main():
         f"rank{args.train.local_rank} Start training, train_steps: {args.train.train_steps}, epochs: {args.train.num_train_epochs}"
     )
     # create the path in advance to save loss log
-    if args.train.global_rank == 0:
+    if args.train.global_rank == 0 and not benchmark_skip_checkpoint:
         os.makedirs(args.train.save_checkpoint_path, exist_ok=True)
     reached_max_steps = False
     max_steps_driven = (
