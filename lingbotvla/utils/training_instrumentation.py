@@ -10,7 +10,7 @@ import os
 import time
 
 
-REMOTE_ROOT = "/home/scratch.keddyj_wwfo/robotics-test/LingBotVLA-Test"
+REMOTE_ROOT = "/root/keddyj/LingBotVLA-Test"
 TIMING_BOUNDARY = "before_data_fetch_to_after_logging_and_checkpoint"
 
 
