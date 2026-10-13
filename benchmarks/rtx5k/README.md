@@ -66,3 +66,62 @@ Full fresh-session evidence is in `LingBotVLA2.0-Training-Opt-Local-rtx5k`
 and the remote task root, especially
 `reports/rtx5k-minctas-reverse-repeat-stage-review-r1.{md,json}` and
 `reports/rtx5k-minctas-operator-qualification-r1.md`.
+
+
+## ROOT parameter gather overlapped with frozen teachers
+
+The opt-in [ROOT recipe](root_teacher/README.md) defaults to ROOT prefetch on
+with `NCCL_MIN_CTAS=8`; its explicit off mode keeps MIN8. The ordinary production
+entry defaults to ROOT prefetch off. Starting at update 2, the controller uses
+the public asynchronous root FSDP unshard before the existing frozen teachers.
+The original compiled model forward consumes the pending gather through its
+native FSDP hooks. The first update keeps native lazy initialization.
+The original teachers, losses, gradient checkpointing, mixed precision,
+clipping, Distributed Muon and learning-rate schedule remain in place.
+
+```bash
+bash "$REPO/benchmarks/rtx5k/root_teacher/run_sft.sh" \
+  --run-id my-root-min8-on-r1 --gpu-uuids "$GPU_POOL" --launch
+docker wait lingbot-rtx5k-sft-my-root-min8-on-r1
+
+# Same MIN8, original teacher scheduling, a fresh run directory.
+bash "$REPO/benchmarks/rtx5k/root_teacher/run_sft.sh" \
+  --run-id my-root-min8-off-r1 --gpu-uuids "$GPU_POOL" \
+  --root-teacher-prefetch off --launch
+```
+
+Fresh same-source comparisons use all 260 neural files, the same eight GPUs,
+complete clean50 data, official weights, micro batch 32, accumulation 1,
+global batch 256, all-layer GC, `full_shard=false` and the original 50,000-step
+LR horizon. Each plain short run has 10 warmup, 20 steady and one excluded
+terminal update; all selected ranks complete the real batch.
+
+| Direct cumulative comparison | Pooled steady mean | Samples/s |
+|---|---:|---:|
+| Default NCCL / ROOT off, three fresh anchors | 5.582719 s | 45.85579 |
+| MIN8 / ROOT on, two fresh repeats | 4.725878 s | 54.16983 |
+
+Cumulative throughput increases **18.130851%**, while update time decreases
+15.348109%; all four adjacent comparisons exceed 15%. This confirms the 15%
+stage, with 20% still unconfirmed. A separate actual versioned-entry MIN8
+off/on pair measures 5.062968 s to 4.722079 s (**7.219049%** incremental
+throughput). These distinct comparisons are not added together. Both sides
+of the versioned pair pass 120 independent source/runtime/control checks,
+including full 23-file recipe capture, 17 helpers and the new 13-file runtime.
+
+All measured short-run losses, GradNorm and LR remain finite; checkpoint
+inventories are empty and resume is disabled. Baseline A/A diagnostic state
+differences are preserved under the original thresholds; complete active
+gradient equivalence is not established. Nsight capture contains dropped
+events, so its observed teacher/gather overlap explains the mechanism without
+supplying the throughput claim. Short measurements do not prove long-term
+convergence. Bounded longer-run stability is reported separately in the task
+root, rather than inferred from these short windows.
+
+Evidence under the remote task root includes
+`reports/rtx5k-h9-cumulative-15-stage-human-review-r1.md`,
+`reports/rtx5k-versioned-root-recipe-entry-validation-r1.md`,
+`reports/rtx5k-root-prefetch-nsys-overlap-r1.md` and
+`reports/active2-aa-review-r1/REVIEW.md`.
+The frozen `root_teacher` recipe retains its preparation lineage and exact
+verified bytes; the measured results above are the implementation evidence.

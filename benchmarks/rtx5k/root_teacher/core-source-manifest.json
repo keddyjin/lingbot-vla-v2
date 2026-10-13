@@ -1,0 +1,1081 @@
+{
+  "schema_version": 1,
+  "reference_git_commit": "7bb4ef03fb9611aab3ab7885370e6f7e0ed625c8",
+  "runtime_HEAD_requirement": "record actual; no fixed HEAD gate",
+  "source_variant": "original-core-with-frozen-root-teacher-prefetch-installed",
+  "scope": "exact original259 git-blob core source entries, trainer replaced by frozen root candidate, one frozen helper added; exactly260 source files",
+  "framework_sha256": "8634aad0e94869c1daa5016bc7173cc24c2ceacbe507ddce7dc5f7194f2acdb1",
+  "files": {
+    "configs/vla/norm_compute/post_data.yaml": {
+      "sha256": "8d1537aedf05f030c00cf8c1ddad9919d9e609148cdbb3927925682f6c109c41",
+      "bytes": 251
+    },
+    "configs/vla/real_robot/real_robot.yaml": {
+      "sha256": "8d5ddcd1d6caa846c4c0442cc3e9ea3f25078c6f274536d1ee1caadb560d8124",
+      "bytes": 4106
+    },
+    "configs/vla/robotwin/robotwin.yaml": {
+      "sha256": "ee915e4ad34589a6def35c9e3c12bb8ff7d9f768dfc7ad44ce789fa7aaea57e2",
+      "bytes": 3991
+    },
+    "configs/vla/robotwin/robotwin_dist_muon.yaml": {
+      "sha256": "ad337ddba68a8e8fabdd7a63d3cdcaf14abaf7129dfc73c45eba8f4eef736505",
+      "bytes": 4786
+    },
+    "lingbotvla/__init__.py": {
+      "sha256": "fcfeb5547f909133485a146441ddcc3072447063914eace4793e487967a88f78",
+      "bytes": 624
+    },
+    "lingbotvla/checkpoint/__init__.py": {
+      "sha256": "5b68a96dcd313876a211b3023e3e9dbbbedff96b6d5bddfd155c910525d89f96",
+      "bytes": 892
+    },
+    "lingbotvla/checkpoint/checkpointer.py": {
+      "sha256": "da48ecca6d78e7982f73018179b50a99b9d211bdebf87c200443b1f51466d8ca",
+      "bytes": 18180
+    },
+    "lingbotvla/checkpoint/format_utils.py": {
+      "sha256": "25dc1eead76e7cbf1d773196927f472d452efebc4eef53a586ea5d257941e2b5",
+      "bytes": 5078
+    },
+    "lingbotvla/data/__init__.py": {
+      "sha256": "db4230123017f1d3f684b402e46b8d94bdd6583f9bc18100c7401855a2b4af2b",
+      "bytes": 1255
+    },
+    "lingbotvla/data/batching_strategy.py": {
+      "sha256": "3fae066e32fc83d4df3a15a333bd30d1e4800886c750ade9bd0921a5e569960b",
+      "bytes": 8000
+    },
+    "lingbotvla/data/chat_template.py": {
+      "sha256": "54fa29e91838dbab619dc33e9c8619948c0778ac7b1037b7674acfd7930c2126",
+      "bytes": 11215
+    },
+    "lingbotvla/data/constants.py": {
+      "sha256": "126d4dae9fe60353d4ff3f8a94cb2be0bd1a2ea769771106ce6f73a48c7dd77e",
+      "bytes": 1088
+    },
+    "lingbotvla/data/data_collator.py": {
+      "sha256": "02505732b0143c39271b38b215d7d72a197f9f95fa9cf9d5e6f18ded51b2cefa",
+      "bytes": 9618
+    },
+    "lingbotvla/data/data_loader.py": {
+      "sha256": "3e50b30313a5178295ccc524cbb17cda40fbb0d7c18b85736d2ab1599fabe819",
+      "bytes": 8295
+    },
+    "lingbotvla/data/data_transform.py": {
+      "sha256": "6dd6ab7d3a02a243b548b297045500e8310cdfb7f3fffa493be4027232fabb56",
+      "bytes": 3128
+    },
+    "lingbotvla/data/dataset.py": {
+      "sha256": "120991b363c4c4457546de56913d9fb6d5fbcf433a790dba0bc28ff96df15809",
+      "bytes": 8994
+    },
+    "lingbotvla/data/dynamic_batching.py": {
+      "sha256": "e5fadeaf804fc78054ca836b3fb21c7f73e1fb9e934519bd06bb88bcbee06416",
+      "bytes": 6975
+    },
+    "lingbotvla/data/multimodal/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/data/multimodal/data_collator.py": {
+      "sha256": "babb31d85587da9caa79d3e3bcca5b791e8e5e56cb4ad202b8c253a436e7786c",
+      "bytes": 12416
+    },
+    "lingbotvla/data/multimodal/multimodal_chat_template.py": {
+      "sha256": "4088ff01a8748e7c21024b2966068d98724fd30930f29eb0287be0925561e9d4",
+      "bytes": 22517
+    },
+    "lingbotvla/data/multimodal/multimodal_transform.py": {
+      "sha256": "1dbd3e1fba5a50249b440a3f5aa4f32595726d94419a16ad95b758407a2b1de3",
+      "bytes": 9020
+    },
+    "lingbotvla/data/multimodal/preprocess.py": {
+      "sha256": "d867f93a9d3b6fde2209bdf85dacea2a3d6ea3bf782b2c1bc096ac1dbbb4c950",
+      "bytes": 12303
+    },
+    "lingbotvla/data/vla_data/__init__.py": {
+      "sha256": "362282de0f8ac1ab332571a3e52ad29e40430a9cd43c7f1f7de003a0d77abb67",
+      "bytes": 83
+    },
+    "lingbotvla/data/vla_data/base_dataset.py": {
+      "sha256": "3d1550e644778ab4ec15c22fae4a9ed799ff5b0f27d7d81b83b218d2c777da65",
+      "bytes": 11511
+    },
+    "lingbotvla/data/vla_data/ee_pose_transform.py": {
+      "sha256": "07a54ad75ca3bb0a7f65ab8e726452548679ae272d960c20b742c5222f13ea53",
+      "bytes": 6269
+    },
+    "lingbotvla/data/vla_data/multi_vla_dataset.py": {
+      "sha256": "c484c0c10236b35eb133fdc3cb9488fe7c0df0bde4830cdf545b96d3f7de5085",
+      "bytes": 6310
+    },
+    "lingbotvla/data/vla_data/transform.py": {
+      "sha256": "e8f237c99ebf6cb4b16178b9bca7fba147337071f004aca8a135ac11f8ca2e49",
+      "bytes": 21379
+    },
+    "lingbotvla/data/vla_data/utils.py": {
+      "sha256": "cfbd6e08dda8f7a3a462c50f6c230c372189f8148b3ffe6a962e240dccd86a16",
+      "bytes": 30006
+    },
+    "lingbotvla/data/vla_data/video_utils.py": {
+      "sha256": "016244862ef3bae740ecd55314028dc64c09893553bea2d639dd7b0273110746",
+      "bytes": 17359
+    },
+    "lingbotvla/distributed/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/distributed/checkpoint.py": {
+      "sha256": "e6c98c3ed48849d79d1f981ab65b8f19011120391ef8f4734e13bf8b12630f8d",
+      "bytes": 5973
+    },
+    "lingbotvla/distributed/fsdp/__init__.py": {
+      "sha256": "ea33030a80e0bf61602e39e8e08fbe612197ba71a9c805eadb7f98afd6409287",
+      "bytes": 184
+    },
+    "lingbotvla/distributed/fsdp/clip_grad_norm.py": {
+      "sha256": "bea38ed7ca18f5cd68f1b68407dbe6e5d0ec30ca0086a7c8712ae16decb8775a",
+      "bytes": 5890
+    },
+    "lingbotvla/distributed/fsdp/extension.py": {
+      "sha256": "3fa259f460f91b49ffb0974af08b26cee2a2b4b9626e7dc20f73de704f9ea8f1",
+      "bytes": 18617
+    },
+    "lingbotvla/distributed/fsdp/initialize.py": {
+      "sha256": "54ed6958c2be1cb1a0d43d6e33cfe9aa2037273bd8239ecc11410581b1c362bb",
+      "bytes": 12003
+    },
+    "lingbotvla/distributed/fsdp2/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/distributed/fsdp2/clip_grad_norm.py": {
+      "sha256": "0743ff0c1f175cafcd2d57cbf78031b8ed97472acf5e98d3fea1dae375a9874f",
+      "bytes": 4959
+    },
+    "lingbotvla/distributed/moe/__init__.py": {
+      "sha256": "1dcf10d80db3716f81de18b07bbccb9d7d4f31d4204e60e8deceacc1f587c31a",
+      "bytes": 819
+    },
+    "lingbotvla/distributed/moe/comm.py": {
+      "sha256": "6c4a676ae00ae8bbbb4fd9e939b32cd8a08dd0f34bead8171656731dd5ff1b99",
+      "bytes": 1900
+    },
+    "lingbotvla/distributed/moe/moe_layer.py": {
+      "sha256": "9941aae19371b8b06ba34f0857403a901b78882f7f78fb50f01654a159d49764",
+      "bytes": 9756
+    },
+    "lingbotvla/distributed/moe/moe_utils.py": {
+      "sha256": "ae70dfd57a1ca723a606ed1d934743f71f6847b30b00595e536151bbf921a49d",
+      "bytes": 3817
+    },
+    "lingbotvla/distributed/offloading.py": {
+      "sha256": "044511219c31a33df46f381a40d5bca9dd5aea8ff6ee4cce6aaf5bea5c2688aa",
+      "bytes": 3752
+    },
+    "lingbotvla/distributed/parallel_plan.py": {
+      "sha256": "48e8da68e4cc70ac5e955fbf10340fe7b0a5c2442120c8344f85cb6e66554837",
+      "bytes": 4249
+    },
+    "lingbotvla/distributed/parallel_state.py": {
+      "sha256": "c15d7d0d509845a331ea5bc0503d7ebfac380a16b48d11ce4377ea6310b3dd7c",
+      "bytes": 17769
+    },
+    "lingbotvla/distributed/sequence_parallel/__init__.py": {
+      "sha256": "cba224d2e25125a28fabdd9dc43970460f8f1b288475672575379cdfe03ceaa7",
+      "bytes": 2863
+    },
+    "lingbotvla/distributed/sequence_parallel/async_ulysses.py": {
+      "sha256": "052b86c46f281376b339811e9ea42f394a417d435a6b11a8b573d59a545aa3ac",
+      "bytes": 15527
+    },
+    "lingbotvla/distributed/sequence_parallel/async_ulysses_dit.py": {
+      "sha256": "9a28b37253108aaf4d38e34cccb516a47d3f7f7065a8c7bb70f191e68e08bdef",
+      "bytes": 16024
+    },
+    "lingbotvla/distributed/sequence_parallel/comm.py": {
+      "sha256": "aaee38fb444c6c4c9ae0e3f1e09e01da10808e299299e2d8be30fcf393ef1fd4",
+      "bytes": 12099
+    },
+    "lingbotvla/distributed/sequence_parallel/data.py": {
+      "sha256": "ab1081840a5704894c8f622a4558b424acb6189bd180aa8ecfbe2a301ee14b35",
+      "bytes": 5124
+    },
+    "lingbotvla/distributed/sequence_parallel/loss.py": {
+      "sha256": "4d5ab17b522bced7b693870dbf0953055cb33f441abdd7ef3e757a45530bdf2d",
+      "bytes": 1927
+    },
+    "lingbotvla/distributed/sequence_parallel/ulysses.py": {
+      "sha256": "25836baadf5c08a567c65774c45e4eed082860dc74dda1740a0f8880b5dd1d11",
+      "bytes": 11976
+    },
+    "lingbotvla/distributed/sequence_parallel/utils.py": {
+      "sha256": "5aa78940f3aa85aaea181528ac551d97a754034a7979b8ac4299965dc45a18dc",
+      "bytes": 5765
+    },
+    "lingbotvla/distributed/torch_parallelize.py": {
+      "sha256": "8634aad0e94869c1daa5016bc7173cc24c2ceacbe507ddce7dc5f7194f2acdb1",
+      "bytes": 29266
+    },
+    "lingbotvla/distributed/utils.py": {
+      "sha256": "90638562bd7a2eb63595cc18bba1fc5dc93cb3520820a9ecbad3e30f53e615b3",
+      "bytes": 3771
+    },
+    "lingbotvla/distributed/vescale_parallelize.py": {
+      "sha256": "a610275eceb40a0f1bcdc326b1eb3171aa9086b7a66b0b0c2ff0ee46ffba155c",
+      "bytes": 5430
+    },
+    "lingbotvla/distributed/vescale_plan.py": {
+      "sha256": "a5c157cf81a5c200ac4bb7dd8e20674730f541973e66cc86bc0276eebb3ba067",
+      "bytes": 3667
+    },
+    "lingbotvla/models/__init__.py": {
+      "sha256": "e0d0fb7e7ac2f3e5fddbbea68dd4e06a2038dc723ce34a144d98307e61f2ad7e",
+      "bytes": 976
+    },
+    "lingbotvla/models/auto.py": {
+      "sha256": "c7c01d27297eefdca3503fef0b2666662550c933c523a87e07597b5d8d2005f1",
+      "bytes": 4903
+    },
+    "lingbotvla/models/config_registry.py": {
+      "sha256": "3c5e1758e5c3acb0a9e28e1087b19424340cef614af7d99dd33ffd02b35c45ee",
+      "bytes": 2967
+    },
+    "lingbotvla/models/loader.py": {
+      "sha256": "dbac5bb3d6a901bd2ff4ef6c362022cc0096eb3561521a8b9eeaa5ddd18c683e",
+      "bytes": 9357
+    },
+    "lingbotvla/models/modeling_layers.py": {
+      "sha256": "9f86f23ced2d9111a5a6a8b6a388fe56554b18650f8dd5168c690e6a846b149b",
+      "bytes": 2044
+    },
+    "lingbotvla/models/module_utils.py": {
+      "sha256": "95eb1b970829ead088792bf6c6f0e32b349399fc36e6988b6a91e25f2ac2c595",
+      "bytes": 17720
+    },
+    "lingbotvla/models/registry.py": {
+      "sha256": "25b2f06ac447fbbda79b04dbcda4260967d9a839ada35b6c721df2ef13a02f38",
+      "bytes": 2933
+    },
+    "lingbotvla/models/vla/__init__.py": {
+      "sha256": "8beb7f9e986cf86c79caabd9bf916a72287c7e7f18a2d9aa762740fd89cdb4b4",
+      "bytes": 976
+    },
+    "lingbotvla/models/vla/lingbot_vla/__init__.py": {
+      "sha256": "24a6e4f8507703f4f3ae21f2206bc5ec6a713a6b76d171a43900a0cf932e38d7",
+      "bytes": 598
+    },
+    "lingbotvla/models/vla/lingbot_vla/configuration_lingbot_vla.py": {
+      "sha256": "37987af05ca8980debf5bfe81211cc2a9db1b2fb0e14e15076fa6497c5baf023",
+      "bytes": 8493
+    },
+    "lingbotvla/models/vla/lingbot_vla/flex_attention.py": {
+      "sha256": "f7e8672efe055af7374584d9f07dfe2cef8eaee4f06bc83274f54474a42cd2b5",
+      "bytes": 8822
+    },
+    "lingbotvla/models/vla/lingbot_vla/modeling_lingbot_vla.py": {
+      "sha256": "af6a365f05e4ccd7d2585368412be5d186a3afdabfc6e9eaf0c97e71a51037dc",
+      "bytes": 76809
+    },
+    "lingbotvla/models/vla/lingbot_vla/modeling_lingbot_vla_v2.py": {
+      "sha256": "ec9e4280015be612c3bd26e71f502acdb95aaef1d74423c01508c794b8bb1f9e",
+      "bytes": 62231
+    },
+    "lingbotvla/models/vla/lingbot_vla/moe_load_balance.py": {
+      "sha256": "15dd33d388d503fc96b891e8ff2cb29415cefa5bb165f1450f847a7f0bbca833",
+      "bytes": 5017
+    },
+    "lingbotvla/models/vla/lingbot_vla/qwen2_action_expert.py": {
+      "sha256": "2221459c676c27eb70e13edd29d6e25c2c6008a1fc3f0b7c820b8abbbf11aff6",
+      "bytes": 23255
+    },
+    "lingbotvla/models/vla/lingbot_vla/qwen3vl_in_vla.py": {
+      "sha256": "eb2202bd01916c891b366c90f9bf11a2782f9387031cc24ed08851b3d8f01e96",
+      "bytes": 13729
+    },
+    "lingbotvla/models/vla/lingbot_vla/qwenvl_in_vla.py": {
+      "sha256": "6320cbc1c71cfd51b98258e92782d601d00f0b33035bf50979a299fbe29ba7c3",
+      "bytes": 17764
+    },
+    "lingbotvla/models/vla/lingbot_vla/utils.py": {
+      "sha256": "aa8d55137c17a1efa78d3a8124a131ddacf8166b56a2d8802f68bc04b434e747",
+      "bytes": 11460
+    },
+    "lingbotvla/models/vla/pi0/__init__.py": {
+      "sha256": "24a6e4f8507703f4f3ae21f2206bc5ec6a713a6b76d171a43900a0cf932e38d7",
+      "bytes": 598
+    },
+    "lingbotvla/models/vla/pi0/flex_attention.py": {
+      "sha256": "f46e0fd09eddf4ccbeac21fbdea58685fb7e821e6850d3c190db11272ffc8d96",
+      "bytes": 5388
+    },
+    "lingbotvla/models/vla/pi0/modeling_pi0.py": {
+      "sha256": "cb0186a313f124fc0d70c1957e2fbb6981dbe323bde1f305bc099ae68f1bf59d",
+      "bytes": 100333
+    },
+    "lingbotvla/models/vla/pi0/utils.py": {
+      "sha256": "7d5d67dbdeeec9d8038ae1445a952d23749938d2ad3d5da7e4f134183fa79bd1",
+      "bytes": 7077
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/baselines/da_v2.py": {
+      "sha256": "897958984c030b2388c9801aa25053cd1bf1dd3be98bb4c131e8826d38685ae2",
+      "bytes": 3955
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/baselines/da_v2_metric.py": {
+      "sha256": "d339b3e229b57601a28491cde80a93968826989a76251cbe4f7eff1ee87a49ee",
+      "bytes": 4472
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/baselines/metric3d_v2.py": {
+      "sha256": "7f40a3f200f84947b30003d70f539da6f5e8242413b06d0edeef69977eb97d33",
+      "bytes": 5024
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/baselines/moge.py": {
+      "sha256": "c245f279dcfb1abe68b18199c34fe065cbf94c6415b39b6a6601d078ab9a465e",
+      "bytes": 3276
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/__init__.py": {
+      "sha256": "8cf7085951f070021c3e212f35570d924aaa85e98002c285bc7c1df917d36294",
+      "bytes": 555
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/__init__.py": {
+      "sha256": "0d2b87b7e71c7f7279ccc4b4f8b541d26071425284a0ea01a5a435fac4511cfe",
+      "bytes": 218
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/hub/__init__.py": {
+      "sha256": "2932e94a2d67be87b717c49468214c1127be7864aedf37f5891d26be7bc1437f",
+      "bytes": 195
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/hub/backbones.py": {
+      "sha256": "11c3b7e3da2a843ba5953191e8fc2027b37490313dfb315c0d4ad1a0ea31d27d",
+      "bytes": 4991
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/hub/utils.py": {
+      "sha256": "c0533919016531b320bf9aef7cd7001249bc8ef8957cdb29246c15b67d5abdf8",
+      "bytes": 1260
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/__init__.py": {
+      "sha256": "5b5f637b2371089e34e0bec9a49518e2250f915aa9e10cae83a32f8e671ad24f",
+      "bytes": 411
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/attention.py": {
+      "sha256": "cc3f20ec18a07061297bcbeacc842aec43534f8eb5fd62516273c2c3385a6b79",
+      "bytes": 3235
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/block.py": {
+      "sha256": "13a024d6b45dd0c63300f0ef0b5135d8551dc563436c4d70fc4ec7c44980023b",
+      "bytes": 9619
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/dino_head.py": {
+      "sha256": "9fdb1fa61c0609dc0876f711f9d0d828c33bf9fd972aab3d9c968d44e16b98d1",
+      "bytes": 2007
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/drop_path.py": {
+      "sha256": "b9f8236e86054b9d9a71275efcad2a9ecaa1f86b529d4b8d6109ddb5e806f67a",
+      "bytes": 1157
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/layer_scale.py": {
+      "sha256": "abb7bbfae152a9de2e6d0961ab5e75c79428e849281bfe50dd07b66b54b485d1",
+      "bytes": 820
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/mlp.py": {
+      "sha256": "255825c73b60a916dd00eb1e38aacbcdbf316e40d6a005efb46e245b7edb43aa",
+      "bytes": 1269
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/patch_embed.py": {
+      "sha256": "40da6add3d811198ea3e17cb99cdd4e5cda59e369efbbe3d18d89308618cf142",
+      "bytes": 2829
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/layers/swiglu_ffn.py": {
+      "sha256": "4c75f68d902cf497cb51e770ab8720057fa9957dd4c93da83aaf4f8893d14538",
+      "bytes": 2188
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/models/__init__.py": {
+      "sha256": "87b360c71997314f41be1c497cc42326fc32617d3a2840f2f19d3795ca8b85ee",
+      "bytes": 1486
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/models/vision_transformer.py": {
+      "sha256": "1df8a949cf9e7eb3e1e4721f3a82839a0685b9dc94c52a5f5a9ab6ee9ffb0cd0",
+      "bytes": 15232
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/utils/__init__.py": {
+      "sha256": "2932e94a2d67be87b717c49468214c1127be7864aedf37f5891d26be7bc1437f",
+      "bytes": 195
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/utils/cluster.py": {
+      "sha256": "ea195476b1f5316520c07233eb73ff4b0e5fe3f7a2645aacec5b416e7bed157c",
+      "bytes": 3010
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/utils/config.py": {
+      "sha256": "588574a78951ccfe7ffaad9ef7cab53d37e837e3ae98cfc1b6a976189073d87c",
+      "bytes": 2211
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/utils/dtype.py": {
+      "sha256": "610251537bcf55de8961a17dd625560eae5cfa5082e9382bbd9ded86db92e1c6",
+      "bytes": 1104
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/utils/param_groups.py": {
+      "sha256": "ec1daae9eb7c50492091504f97087e3179d46a080d7b7f131967c07cb15cf6d4",
+      "bytes": 3761
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/dinov2/utils/utils.py": {
+      "sha256": "10bfc824fdb00cf0c4afc0a875b5763ad4c5f33ec38c2515b12528307b789305",
+      "bytes": 3240
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/modules.py": {
+      "sha256": "cb5d7ff75f410be2f8466fc5ca164e04f7b991385c141b3d896c02ead7858fc2",
+      "bytes": 12150
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/utils.py": {
+      "sha256": "cb7279c4295afae9278b13d70181128ab2e29027b08a012a1b0f33213c16de22",
+      "bytes": 1747
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/v1.py": {
+      "sha256": "a6c030f2e93e3c02268dc6d523a33d74299b6d012c3c2bf34c7e7c4a44646241",
+      "bytes": 18925
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/model/v2.py": {
+      "sha256": "e736ed59fdb8ad89ec0c29ddfeeccd6a4246c387b3f423b922708366b69758fd",
+      "bytes": 13460
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/app.py": {
+      "sha256": "8ea56be9dbcfaec9dd6a0f41f670e140a3a6f71f48f8e85a3e4eb7232be2e0ba",
+      "bytes": 13475
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/cli.py": {
+      "sha256": "86419e34bbfd15d0646b1d3821fa68651cb21f316428be862ed1df0a126395d0",
+      "bytes": 785
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/eval_baseline.py": {
+      "sha256": "17702081385cc1221e7ad04d57fbcabb687d1d9705a63011f20c0626b826f3fe",
+      "bytes": 8531
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/infer.py": {
+      "sha256": "76b59a7edbb63748ee028f5479aa2ee8beecae4b0e8d240b2166e4207d4e1649",
+      "bytes": 8983
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/infer_baseline.py": {
+      "sha256": "dfc2ff6b161dceceeeecc31456e9e4ac534de3d0457954cea375ba061e27fbb2",
+      "bytes": 7553
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/infer_panorama.py": {
+      "sha256": "fddd6f0112dbcb91c10c2a3909a6e3c4367dd1b4466c1ed0f283b3a20171251f",
+      "bytes": 8818
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/train.py": {
+      "sha256": "969c12ce3be0a70183da7f6015c3d80ee9cb5c6d92a944b4d662b3e3527f06cd",
+      "bytes": 25750
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/scripts/vis_data.py": {
+      "sha256": "5f19d6ea30bc4b76fe8ccb1a71423b65bd15b262fc9d3356150c98098464483c",
+      "bytes": 3211
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/test/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/test/baseline.py": {
+      "sha256": "8f62da7022ab16f3f00556ac38580f085c68477d9200722646c77a78720a0d75",
+      "bytes": 1825
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/test/dataloader.py": {
+      "sha256": "086974ff7f31378e202a187a73e4224db058fe834de34027850f04871672c60e",
+      "bytes": 10237
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/test/metrics.py": {
+      "sha256": "f581a2cf1d625127e644f4648d7e8d6414ba3ae0792dc18e3a076ba1e0a4acbf",
+      "bytes": 14683
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/train/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/train/dataloader.py": {
+      "sha256": "0da45febd0e798de25828ee44ff38a5c9a4bad98c9db07796dce3eb10e45c210",
+      "bytes": 11819
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/train/losses.py": {
+      "sha256": "05c090c901e038be389df4cee04dea05444f5c6f2ff4dce9bfc76fe761c7c325",
+      "bytes": 14832
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/train/utils.py": {
+      "sha256": "97b645e3789cb4739ef87437313405b6b0b2dc04e745ae99f3bc987a3b22e723",
+      "bytes": 2504
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/alignment.py": {
+      "sha256": "85f65b3648a557fd39e76014503a892b2aceea7cd5e0471a1de1def68f0c31e1",
+      "bytes": 21116
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/data_augmentation.py": {
+      "sha256": "c86762cf72aa07d59a75da42d8d0f2dd45bfd9b1eed14bbed8d05da15f8e8bbd",
+      "bytes": 11821
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/download.py": {
+      "sha256": "929fde9df713247927b93807809ffa9b5a49572d6bd5bd1ae57235d2c8f4fc91",
+      "bytes": 1971
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/geometry_numpy.py": {
+      "sha256": "f540c5b8ef55bfffcc32b1a62b38be605683e29fbf399ca86dfcbfc458ce4c10",
+      "bytes": 10110
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/geometry_torch.py": {
+      "sha256": "2f8d5de7d671af16d25fe13c555fd73855d8447bc086bb23aa42e859b303fb05",
+      "bytes": 11844
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/io.py": {
+      "sha256": "36dcbc1fc933dcd19d2c97d3a7a3d556ce3f3a191055bb4cc6f93168c4ef32ba",
+      "bytes": 9156
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/panorama.py": {
+      "sha256": "861e747f6fa5d9c855cd4e9d7964165a6d3e3e73f81ad78d6dfe98f6b6d70d8d",
+      "bytes": 9712
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/tools.py": {
+      "sha256": "ee4893ddbc49da5b24ab43277e9693e86a842dace69452803bab85b531121f60",
+      "bytes": 8784
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/vis.py": {
+      "sha256": "eb4d3d9a77caf923628312ab56e5fc241f39a2d3f2c066a763e76ce49842c1a9",
+      "bytes": 2930
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/webfile.py": {
+      "sha256": "3ffcd69e343b9c867cf52c80ec1923f76478a6e8bda712cc677bfefb077b0777",
+      "bytes": 2223
+    },
+    "lingbotvla/models/vla/vision_models/MoGe/moge/utils/webzipfile.py": {
+      "sha256": "5e68057dad8f05ecbd08883f2b960211512c28bdb0243d32700ec5102b735668",
+      "bytes": 5131
+    },
+    "lingbotvla/models/vla/vision_models/align_heads/__init_.py": {
+      "sha256": "3ee313b0fea665d122e54af056dfa3f8ef21528ffa08f23735aa91296c56b007",
+      "bytes": 53
+    },
+    "lingbotvla/models/vla/vision_models/align_heads/depth_head.py": {
+      "sha256": "78d3a617b8b84647ee3811c606f6554d40efadd5ff330d5efc91a64af919fd79",
+      "bytes": 2148
+    },
+    "lingbotvla/models/vla/vision_models/align_heads/resampler.py": {
+      "sha256": "21e8444e7af259746c7786ec0064e8325b446305677fffebcc9569d749549ab8",
+      "bytes": 11519
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/__init__.py": {
+      "sha256": "83824d4d91b800227e03562bf303d1e3758582efa6af9d9fb3898a971a21e807",
+      "bytes": 124
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/__init__.py": {
+      "sha256": "94df78b000730b9534e7f575731bf4d1668eba5fa6ef693f57dd25dafc3572ce",
+      "bytes": 163
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/__init__.py": {
+      "sha256": "b745baf826d0df619d7eaaf1d6fdd9c04e2cf87a2e74abad1ca37e435757a894",
+      "bytes": 529
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/attention.py": {
+      "sha256": "26d9ca3a0a9848dfe0da1221d4d0b902b0f63aa18c6e3bb75cf7bf9b6928d67e",
+      "bytes": 5830
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/block.py": {
+      "sha256": "9ad2173e78d4037aebe7e6ef3a8c64e7f3b08fc8f888eda9e6e62ee92805b0d6",
+      "bytes": 15092
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/dino_head.py": {
+      "sha256": "cd7a83f00ac449f962484bad0f2959be477781e57943508428d32ff88f41fe33",
+      "bytes": 2089
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/ffn_layers.py": {
+      "sha256": "29d3f20800e9bcf5fa4e056f6b0e81c1375c291c1dbffd5b103ac555fe2cb9ff",
+      "bytes": 2643
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/flash_attention.py": {
+      "sha256": "6f664bc7bc9f9e38e955c7fac07eea5cb236e869b00584ca9b263d11c8f890ad",
+      "bytes": 1102
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/flash_attention_packed.py": {
+      "sha256": "2a8776749e7c0d6dd780a67764f8e51cc90b0f417cd53aec7422cf07f8712a6d",
+      "bytes": 1664
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/flex_attention_packed.py": {
+      "sha256": "177f4ffdb522e861677e1178abc2cc114d3bf41d62b690c9baa2fd37dd8d2820",
+      "bytes": 3382
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/layer_scale.py": {
+      "sha256": "f9a10ee763a62136f9e814bfe2f2209c2cb501dfdc5573f858ab01ba9a69c23f",
+      "bytes": 798
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/patch_embed.py": {
+      "sha256": "88ceaac1439a54a6553a5ca8e7d97c40f92747e9edc64f5680afd21af7299475",
+      "bytes": 2386
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/rms_norm.py": {
+      "sha256": "8509ffc53f0bbe9e353a8b9e57ca2396795640b4ecc85140c27b17127c971869",
+      "bytes": 721
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/rope_position_encoding.py": {
+      "sha256": "5236c6fb9d84252655b1a60a7177db5e6cf4a3c15227e49f4959d32947b4ba2e",
+      "bytes": 12002
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/layers/sdpa_attention_packed.py": {
+      "sha256": "e062fe9c9df49330a54bd9922206a8b66fbd8753c61ce2d0ed3d5b3df4580bce",
+      "bytes": 2730
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/__init__.py": {
+      "sha256": "1faa23c982cbfcd019e3bbc92021a79123e6ff802c70c618470681068652af5c",
+      "bytes": 2290
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/inference/__init__.py": {
+      "sha256": "75940a6a6035f3fc4cebcd5a0cb8800e1f5bd82547e0ec7cc9463d9774c149b2",
+      "bytes": 129
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/inference/causal_eval.py": {
+      "sha256": "c754df45a6113d4ddd6aa6d1527ab4587d4efb35b1906eeb6ef7480bd7da04bc",
+      "bytes": 5443
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/inference/kv_cache.py": {
+      "sha256": "3d186623252f18d240bf71622127622da5b2ccea15040c92b6109b03ab54e965",
+      "bytes": 4142
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/navit_eval.py": {
+      "sha256": "1fafad9450f0e5a53328cddc066cc37d71db9bbc2e3222dfabed05b4fb6a774e",
+      "bytes": 6385
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/navit_video_vision_transformer.py": {
+      "sha256": "4a3a1bd606c2f639edf418a4ead0864882b152f4c815956baa245c890a5fc503",
+      "bytes": 13720
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/unified_video_vision_transformer.py": {
+      "sha256": "d50e23815d713e77eadf796cb1051a3051a5e38be20689b26e9e4927c3c64a2f",
+      "bytes": 19476
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/models/vision_transformer.py": {
+      "sha256": "a04ac7f1393e8992bbfc8e8460c59d24e26c65c410baccbdbe90f605d98c3ba9",
+      "bytes": 13258
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/lumos_dinov3/utils.py": {
+      "sha256": "0e9422435fc9fc6a885800527b76476c22709852fb492b4b0f9705a93a4ebe2f",
+      "bytes": 1594
+    },
+    "lingbotvla/models/vla/vision_models/dino_video/teacher.py": {
+      "sha256": "1aa25aca20347d7dca2d265ab377e6b2f8f3b36485422cfc6d6c4a9d503f63b5",
+      "bytes": 6046
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/example.py": {
+      "sha256": "ed5bc3807bba81be71f3b7d978e0e38100acc3c0d94fe254b2dfcabd45210795",
+      "bytes": 3521
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/__init__.py": {
+      "sha256": "20466a32b5c18e07a2afc9c1793ca48123039ee7e1a46de37461fb153a8d3193",
+      "bytes": 483
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/__init__.py": {
+      "sha256": "0d2b87b7e71c7f7279ccc4b4f8b541d26071425284a0ea01a5a435fac4511cfe",
+      "bytes": 218
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/hub/__init__.py": {
+      "sha256": "2932e94a2d67be87b717c49468214c1127be7864aedf37f5891d26be7bc1437f",
+      "bytes": 195
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/hub/backbones.py": {
+      "sha256": "74b7f24365cfd454326c91f438c77a4d7f0c3fb2a424eb6a5d48d53573bbf54d",
+      "bytes": 5352
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/hub/utils.py": {
+      "sha256": "c0533919016531b320bf9aef7cd7001249bc8ef8957cdb29246c15b67d5abdf8",
+      "bytes": 1260
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/__init__.py": {
+      "sha256": "29d808e091d40cfdb4d5a4355c3c0fc325353686e6b0b0b3f6a24676ca4afd78",
+      "bytes": 468
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/attention.py": {
+      "sha256": "cc3f20ec18a07061297bcbeacc842aec43534f8eb5fd62516273c2c3385a6b79",
+      "bytes": 3235
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/block.py": {
+      "sha256": "fe8ae374b8b08d634320ca4083cdc5f671926bcf7eb012e8988b83920b99ef58",
+      "bytes": 9631
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/dino_head.py": {
+      "sha256": "9fdb1fa61c0609dc0876f711f9d0d828c33bf9fd972aab3d9c968d44e16b98d1",
+      "bytes": 2007
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/drop_path.py": {
+      "sha256": "b9f8236e86054b9d9a71275efcad2a9ecaa1f86b529d4b8d6109ddb5e806f67a",
+      "bytes": 1157
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/layer_scale.py": {
+      "sha256": "abb7bbfae152a9de2e6d0961ab5e75c79428e849281bfe50dd07b66b54b485d1",
+      "bytes": 820
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/mlp.py": {
+      "sha256": "255825c73b60a916dd00eb1e38aacbcdbf316e40d6a005efb46e245b7edb43aa",
+      "bytes": 1269
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/patch_embed.py": {
+      "sha256": "40da6add3d811198ea3e17cb99cdd4e5cda59e369efbbe3d18d89308618cf142",
+      "bytes": 2829
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/patch_embed_mlp.py": {
+      "sha256": "0c18967ba6195c7864c5a963b3c128f125daea7198a0a9e0fc2528eb3246f221",
+      "bytes": 5094
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/layers/swiglu_ffn.py": {
+      "sha256": "4c75f68d902cf497cb51e770ab8720057fa9957dd4c93da83aaf4f8893d14538",
+      "bytes": 2188
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/models/__init__.py": {
+      "sha256": "ed3430c69b7845b741ac3badc189e901a52a7d45a97d6aaa441b79be29734f8a",
+      "bytes": 1953
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/models/mask_utils.py": {
+      "sha256": "f7a7db258f0a29cae1077056c95010b14004952ba455ba7915c0f2bbbffe75f3",
+      "bytes": 4877
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/models/vision_transformer.py": {
+      "sha256": "84e9883def1b61c62e438c4ee152c4425c9e7f8bba30cf655e6361eb684ba137",
+      "bytes": 19839
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/utils/__init__.py": {
+      "sha256": "2932e94a2d67be87b717c49468214c1127be7864aedf37f5891d26be7bc1437f",
+      "bytes": 195
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/utils/cluster.py": {
+      "sha256": "ea195476b1f5316520c07233eb73ff4b0e5fe3f7a2645aacec5b416e7bed157c",
+      "bytes": 3010
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/utils/config.py": {
+      "sha256": "588574a78951ccfe7ffaad9ef7cab53d37e837e3ae98cfc1b6a976189073d87c",
+      "bytes": 2211
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/utils/dtype.py": {
+      "sha256": "610251537bcf55de8961a17dd625560eae5cfa5082e9382bbd9ded86db92e1c6",
+      "bytes": 1104
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/utils/param_groups.py": {
+      "sha256": "ec1daae9eb7c50492091504f97087e3179d46a080d7b7f131967c07cb15cf6d4",
+      "bytes": 3761
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/dinov2_rgbd/utils/utils.py": {
+      "sha256": "10bfc824fdb00cf0c4afc0a875b5763ad4c5f33ec38c2515b12528307b789305",
+      "bytes": 3240
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/modules_decoder.py": {
+      "sha256": "e809c6f5abb57061b58e43e50a04e20ac2179503abed02cafda3f82dfac7387e",
+      "bytes": 8805
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/modules_rgbd_encoder.py": {
+      "sha256": "72f06b74ba10c39ae20b01154c8b0b108a17e47e0bb978563c80fc51fe5c46cd",
+      "bytes": 6400
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/utils.py": {
+      "sha256": "a7108de9525839a7277c6ce0db6d8108156739cb02571ad6a87eb822814204e6",
+      "bytes": 4447
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/model/v2.py": {
+      "sha256": "45f69b4e2c5fab73f883a2790a3c7839d7fd4c11c4d11343ef1d98b31be0351e",
+      "bytes": 11467
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/utils/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/utils/geo.py": {
+      "sha256": "b235df79d279a8ba0c1d62004df0a8af9a0c2a0faa4ebb52a0e7140f0541c8eb",
+      "bytes": 3759
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/utils/io.py": {
+      "sha256": "b6907a108db83f8e40862c96ad089bc4d05dd88a630430b5c0f8c67ef5e1d20c",
+      "bytes": 9155
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/utils/tools.py": {
+      "sha256": "ee4893ddbc49da5b24ab43277e9693e86a842dace69452803bab85b531121f60",
+      "bytes": 8784
+    },
+    "lingbotvla/models/vla/vision_models/lingbot-depth/mdm/utils/vis.py": {
+      "sha256": "564fbb5898b6981c70fb3ce845b4ad1a1594360bd10787773ed194efa497c88a",
+      "bytes": 2778
+    },
+    "lingbotvla/models/vla/vision_models/module_utils.py": {
+      "sha256": "3d7cc8834d949c193f80add5ce2f031ec08e32312c895de07c68144c4bdc77aa",
+      "bytes": 24217
+    },
+    "lingbotvla/ops/__init__.py": {
+      "sha256": "3935848ce37fb4598a1d091bc7162d17ff81df1bfb445bed4e8fc25bef705cc1",
+      "bytes": 801
+    },
+    "lingbotvla/ops/attention.py": {
+      "sha256": "1e89c4bd5112687e76f2e7a45971672b428fa2d5ff70c4979142feea1bc177c1",
+      "bytes": 10668
+    },
+    "lingbotvla/ops/dit/rope_wan/rotary.py": {
+      "sha256": "b8231dbea9fdbe268375bd0b18cc2b5ba932c27d0bba089fa31f88d5eb1f1aab",
+      "bytes": 10540
+    },
+    "lingbotvla/ops/fused_moe.py": {
+      "sha256": "241f57de1f0745f86ba8620925b1bf6df9ac2753d867441b4b6da653404711ac",
+      "bytes": 13471
+    },
+    "lingbotvla/ops/group_gemm/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/ops/group_gemm/kernel/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/ops/group_gemm/kernel/group_gemm.py": {
+      "sha256": "06d45d9be527a9def13e385297b8444b19ea2d75da58ae769ed838f6539a3d4b",
+      "bytes": 12155
+    },
+    "lingbotvla/ops/group_gemm/kernel/moe.py": {
+      "sha256": "e2392e269128d440b79f98415ff1ebd6045e015fd17513c68462787653b442a7",
+      "bytes": 13999
+    },
+    "lingbotvla/ops/group_gemm/kernel/triton_utils/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/ops/group_gemm/kernel/triton_utils/activation.py": {
+      "sha256": "19c183fe5bd29444586a54a129414d5f4b79ebba0e58c0b5e4cafee75cf84137",
+      "bytes": 3201
+    },
+    "lingbotvla/ops/group_gemm/kernel/triton_utils/memory.py": {
+      "sha256": "070d0de9c420c44daf4b423cccb2b5bd144b1fb5137142b7b84e7db32d7d5b56",
+      "bytes": 3190
+    },
+    "lingbotvla/ops/group_gemm/kernel/triton_utils/utils.py": {
+      "sha256": "09e7d34dd88216694d07692df80e6db8611aa24df9563c3c024b50af61ec2d12",
+      "bytes": 2463
+    },
+    "lingbotvla/ops/group_gemm/utils/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/ops/group_gemm/utils/benchmark_utils.py": {
+      "sha256": "97d9558b56c3ee0e1990fb24d8fe31e56dfa0aa50cc8d05569ae8b905a57d975",
+      "bytes": 4937
+    },
+    "lingbotvla/ops/group_gemm/utils/config.py": {
+      "sha256": "d6a79bb8b43c87b68cf6dafebeed30382e2935c3771a4a7c930245ce860abe9a",
+      "bytes": 2444
+    },
+    "lingbotvla/ops/group_gemm/utils/device.py": {
+      "sha256": "b6c0b0815f251d6d45ef85c546372cea75ae836d6070e3117641afaab1e55eb2",
+      "bytes": 1029
+    },
+    "lingbotvla/ops/group_gemm/utils/envvars.py": {
+      "sha256": "2c0e816a20c5d0cfccf1497c50a78203c7aecc51fb4a08eefafaa33b2f22e8d7",
+      "bytes": 1908
+    },
+    "lingbotvla/ops/group_gemm/utils/kernel.py": {
+      "sha256": "261363ce167e5dfc4e66a5a86bc7c24d6d36ff94c83f421050b98a7455a9b20d",
+      "bytes": 823
+    },
+    "lingbotvla/ops/group_gemm/utils/path.py": {
+      "sha256": "82100f20fdf6aa4455dde917606e2f2b36fc062ff23db59f0f4aad01e7751d2d",
+      "bytes": 1468
+    },
+    "lingbotvla/ops/group_gemm/utils/pretuned.py": {
+      "sha256": "7b09a5353a92c54d49911b96d042545a0143f83e02448f964755d30d0dbe0ba5",
+      "bytes": 4356
+    },
+    "lingbotvla/ops/loss.py": {
+      "sha256": "c8ed3b1cd2d7eb6246fa126a2ba2cd03a1c15eb4ff038083e0ee32e0759b7b89",
+      "bytes": 2833
+    },
+    "lingbotvla/ops/moe_loss.py": {
+      "sha256": "9d3908b76a0becb7164890beb4ed409ea16b27cdafb7503b70debb3d42f1629b",
+      "bytes": 7306
+    },
+    "lingbotvla/ops/robby_moe.py": {
+      "sha256": "56eb2c94987389517431e39cb4b4470967e96ff995713d9031b00b8607db1512",
+      "bytes": 8248
+    },
+    "lingbotvla/ops/triton_moe_loss.py": {
+      "sha256": "614a405e42722d7f77ba5f2183f254a0d2e15a0949ed974ffba70ef41a9faf8c",
+      "bytes": 25776
+    },
+    "lingbotvla/optim/__init__.py": {
+      "sha256": "5214e466c80d09494bec7e2fa73c9a720a8d59968d99fce2ca561390e1954d44",
+      "bytes": 1070
+    },
+    "lingbotvla/optim/dist_muon.py": {
+      "sha256": "c37ff0ff975e1b07fd3cf5fcc2951b8eb3ff237f218907e546179854ecb43bd3",
+      "bytes": 11258
+    },
+    "lingbotvla/optim/dist_muon_params.py": {
+      "sha256": "91837d1e5fea718d9795d3eae882fd5500bdece814177d682604c30d87e0ebf9",
+      "bytes": 3234
+    },
+    "lingbotvla/optim/flex_shard/__init__.py": {
+      "sha256": "271c4ee375bf593e70ced7409e3086bfd9b9da68e8aee7be7e4b0db17878e274",
+      "bytes": 492
+    },
+    "lingbotvla/optim/flex_shard/_compat.py": {
+      "sha256": "5ad8e41a593ddf1699a719a766fb33c2389048f7d4e77d87fe87d33b27af7d1a",
+      "bytes": 1081
+    },
+    "lingbotvla/optim/flex_shard/_optimizer_reshard_runtime.py": {
+      "sha256": "3995a8c4b258e3b652942481ade9c618a761b50f7a82bc939e7e04d722d8babf",
+      "bytes": 29306
+    },
+    "lingbotvla/optim/flex_shard/_optimizer_reshard_schedule.py": {
+      "sha256": "1ac4160ad5d5d62df3838646c82e2851befb0e8abf2489de35389ba302aac86f",
+      "bytes": 46850
+    },
+    "lingbotvla/optim/flex_shard/dist_muon.py": {
+      "sha256": "d12a27006bf23d6493521828129c2643517a7a23e5ef5770547e042f24c86439",
+      "bytes": 76469
+    },
+    "lingbotvla/optim/flex_shard/optimizer_reshard.py": {
+      "sha256": "f2ffcb294068ea7edf309d4a23b6f6b58f273bd7f21bd14e0041abe0d913ec3b",
+      "bytes": 11055
+    },
+    "lingbotvla/optim/lr_scheduler.py": {
+      "sha256": "fd1ace611797fb7ee9b33e6b293b0c2154fb18e4744fb77cde0c2e8381c283d2",
+      "bytes": 6037
+    },
+    "lingbotvla/optim/muon.py": {
+      "sha256": "2ca3fcce6c158ed0dbf726313cb623520b13ff249d4ff83a98d6c3a4a6b47881",
+      "bytes": 22459
+    },
+    "lingbotvla/optim/optimizer.py": {
+      "sha256": "88886197cc7aa2c3470ac4ba139c5ad5cc40f483c7dc61e3333611b0f577f733",
+      "bytes": 12117
+    },
+    "lingbotvla/schedulers/flow_match.py": {
+      "sha256": "5a1d3ac920ea1b3b7fe1ee4027c46833c03d5a48f099d2f9bce0a054f9448d6d",
+      "bytes": 4170
+    },
+    "lingbotvla/utils/__init__.py": {
+      "sha256": "ced14be479d27e864cf3557c37d8abe00d2204ba6c030620bf48ea85e25a5921",
+      "bytes": 600
+    },
+    "lingbotvla/utils/arguments.py": {
+      "sha256": "72a898580d7eeb68dd76395f376aa12a971ae7b0e87fe32a2e5816f7c8683351",
+      "bytes": 39490
+    },
+    "lingbotvla/utils/async_hf_checkpoint.py": {
+      "sha256": "bf9ab6ec4e166b353fd66313ebc5333696f77cafb2e31c866afc836cbc78c24c",
+      "bytes": 12050
+    },
+    "lingbotvla/utils/async_tb_writer.py": {
+      "sha256": "f920b4532bc7d37523c266fe4dd82ca1a8ca1d166b393c04830c43092d75b8ac",
+      "bytes": 5205
+    },
+    "lingbotvla/utils/count_flops.py": {
+      "sha256": "fc5c198a1705d30eb93067ac8302acda981bc8c5c3b1cb8c0c6a9797b8b5780c",
+      "bytes": 23399
+    },
+    "lingbotvla/utils/dist_utils.py": {
+      "sha256": "2fe84232343bc18e6cee980aa2d0531bb58805c3a05493707ea691c6b90cc3aa",
+      "bytes": 3177
+    },
+    "lingbotvla/utils/dit_utils.py": {
+      "sha256": "4302bda642387ec2025823999ef1fffc8cdf2aeaa053c9f9dc7085000406880f",
+      "bytes": 8685
+    },
+    "lingbotvla/utils/ema.py": {
+      "sha256": "e5491ff90a50f8170c0cc0cd5856a21fe1d084544de691652b5295cb758c8f82",
+      "bytes": 521
+    },
+    "lingbotvla/utils/fsdp_root_teacher_prefetch.py": {
+      "sha256": "34900378bf7e7c21c7cb3b96a924a2a8a31b83e21ca0078ababa373c865de4aa",
+      "bytes": 24957
+    },
+    "lingbotvla/utils/helper.py": {
+      "sha256": "c35007430238271bcf394cd7d870ae66ac0c92413babbddca64732db6ee7d356",
+      "bytes": 14260
+    },
+    "lingbotvla/utils/import_utils.py": {
+      "sha256": "1cfa2f06905d3fa0a32d08dc8973e32b6bcbf071a80f014d6371515b6b32a66f",
+      "bytes": 3019
+    },
+    "lingbotvla/utils/logging.py": {
+      "sha256": "0311934e4d0382950bf2f1c77435117f3f8ce673d1bfec62d46e8cd83d6b0610",
+      "bytes": 4024
+    },
+    "lingbotvla/utils/lora_utils.py": {
+      "sha256": "cc43360c66ec7062ee4302cd3bdd83771754b7cf2fc05af4694b8f820718b85d",
+      "bytes": 3575
+    },
+    "lingbotvla/utils/model_utils.py": {
+      "sha256": "fc4874db144ac2d21c5ead866c7b79151dbbf6e2d1b3998011f56bab23465d7c",
+      "bytes": 2423
+    },
+    "lingbotvla/utils/moe_utils.py": {
+      "sha256": "378054f52b2aac9c59459278dadfceb4acf78f4b21a6e7934cd518031ae2a66d",
+      "bytes": 3234
+    },
+    "lingbotvla/utils/normalize.py": {
+      "sha256": "64020713950bcb27b3589c12219292ed1859a090c986c69fdc5b62e053fd5737",
+      "bytes": 12438
+    },
+    "lingbotvla/utils/process.py": {
+      "sha256": "a50241f6408cb09fa6c6d633c21e32504826a16b275fe995f39d46a0f78fe1f3",
+      "bytes": 2338
+    },
+    "lingbotvla/utils/recompute_utils.py": {
+      "sha256": "efee9e750d0788f699e9de82da0a06caa7f961d26e748075457be2bc35430158",
+      "bytes": 4699
+    },
+    "lingbotvla/utils/seqlen_pos_transform_utils.py": {
+      "sha256": "9db5f54ff91bcb8384ae8e88f8b430bfe018c2a7e07382f885cc2646894056d3",
+      "bytes": 1917
+    },
+    "lingbotvla/utils/training_instrumentation.py": {
+      "sha256": "7904f62561eff7cc07cd6ca46262e341088cfc8032ea522599dee8f573919085",
+      "bytes": 9788
+    },
+    "tasks/vla/train_lingbotvla.py": {
+      "sha256": "d5f7af2803161800f9590c9b50854b386065776fb3f55968a70dff013a9224c8",
+      "bytes": 62816
+    },
+    "tasks/vla/train_pi0.py": {
+      "sha256": "437b3fb2b802beccd208b60086be1bbb2a00f396e11796d18803f913ec63f0f2",
+      "bytes": 39557
+    }
+  },
+  "baseline_manifest_sha256": "61eb7952c8f11a715c6dd923fb5ddc85804344a6a83dbf2c7ff52a9acee83709",
+  "source_changes_from_baseline": {
+    "tasks/vla/train_lingbotvla.py": {
+      "baseline": {
+        "sha256": "b10fc98ec4692d78c05c15ab99c5279b9aa1026bbdd8e0236159301514419c70",
+        "bytes": 62179
+      },
+      "installed": {
+        "sha256": "d5f7af2803161800f9590c9b50854b386065776fb3f55968a70dff013a9224c8",
+        "bytes": 62816
+      }
+    },
+    "lingbotvla/utils/fsdp_root_teacher_prefetch.py": {
+      "baseline": null,
+      "installed": {
+        "sha256": "34900378bf7e7c21c7cb3b96a924a2a8a31b83e21ca0078ababa373c865de4aa",
+        "bytes": 24957
+      }
+    }
+  },
+  "installed_variant_applies_to_modes": [
+    "off",
+    "on"
+  ],
+  "root_source_spec_sha256": "513c5586c8441045b1ed6dea80735ca67fb6689407a8172a7cdc60e08ac4d1ef",
+  "fwd_prefetch": "off",
+  "nccl_min_ctas": "8",
+  "baseline_core_entries_unmodified": 258,
+  "harness_context_variant": "root-teacher-min8-v9",
+  "reference_H8_manifest_sha256": "924deda41a409781509153639ec8b2230c9284b8355ca2e70aae973066aecf0c",
+  "neural_source_identities_unchanged_from_H8": true
+}

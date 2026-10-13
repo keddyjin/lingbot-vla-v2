@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "recipe": "versioned-root-teacher-min8-recipe",
+  "intended_repository_path": "benchmarks/rtx5k/root_teacher",
+  "frozen_H9_receipt_sha256": "951380ff352e39232cb695038bb6ebde33c9debcdd3524a93bf325d440d621ec",
+  "H9_neural260_core_manifest_sha256": "73178b3c0462370257d09167d6ee24a5f75528dfcbdc34e2d5e99046addd1060",
+  "H9_context_manifest_sha256": "ee8f0b8803c1390f3aafddd254c02a0cfa5cf386d03cf4ddac6cf5986f21247a",
+  "H9_source_spec14_sha256": "513c5586c8441045b1ed6dea80735ca67fb6689407a8172a7cdc60e08ac4d1ef",
+  "helper349_unchanged": true,
+  "trainer_d5_unchanged": true,
+  "framework8634_unchanged": true,
+  "H9_inner_default_root_mode": "off",
+  "outer_recipe_default_root_mode": "on",
+  "outer_recipe_always_passes_resolved_root_mode": true,
+  "root_modes": [
+    "off",
+    "on"
+  ],
+  "both_modes_MIN_CTAS": "8",
+  "changed_H9_runtime_files": {
+    "rtx5k_launch_sft_run.sh": {
+      "H9_sha256": "28f219e6709bcb19a7ce95ad624fae96d054a78b49f34a7bda4d8de0e281d257",
+      "versioned_sha256": "84aea06e924ab9499b2d452ebf26a8a14c3e2dc7e6fcf94361f7bb8feb5bd80e"
+    },
+    "rtx5k_sft_container_entry.sh": {
+      "H9_sha256": "0ab495612ce530f4db6e0ebdc22c02780c0d5b3fae6b073c317954e262949b89",
+      "versioned_sha256": "d705b64e5a2c3cf3f6425168fd01cab09e30a036c7a7ff55faf07d9086319760"
+    }
+  },
+  "runtime_review_bytes_unchanged": true,
+  "H9_prepare_auditors_unchanged": true,
+  "performance_qualified": false,
+  "actual_versioned_ordinary_pair_completed": false,
+  "deployment": "run versioned helpers in their own directory; ROOT bind covers source; no ops/harness copy"
+}
