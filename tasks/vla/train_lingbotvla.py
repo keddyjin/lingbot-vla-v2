@@ -33,6 +33,7 @@ from lingbotvla.models import build_foundation_model, build_processor, save_mode
 from lingbotvla.optim import build_lr_scheduler, build_muon_optimizer, build_optimizer
 from lingbotvla.optim import build_flex_shard_dist_muon_optimizer
 from lingbotvla.utils import helper
+from lingbotvla.utils.fsdp_root_teacher_prefetch import RootTeacherPrefetch
 from lingbotvla.utils.async_hf_checkpoint import AsyncHFCheckpointSaver
 from lingbotvla.utils.arguments import EvalArguments, DataArguments, ModelArguments, TrainingArguments, parse_args, save_args
 from lingbotvla.utils.dist_utils import all_reduce
@@ -693,6 +694,7 @@ def main():
         args.train.enable_activation_offload, args.train.enable_gradient_checkpointing, args.train.activation_gpu_limit
     )
     model.train()
+    root_teacher_prefetch = RootTeacherPrefetch(model) if args.train.root_teacher_prefetch else None
     logger.info(
         f"rank{args.train.local_rank} Start training, train_steps: {args.train.train_steps}, epochs: {args.train.num_train_epochs}"
     )
@@ -759,6 +761,8 @@ def main():
                     k: v.cuda(non_blocking=True) if isinstance(v, torch.Tensor) else v for k, v in micro_batch.items()
                 }
                 future_video_effective_fps = micro_batch.pop('future_video_effective_fps', None)
+                if root_teacher_prefetch is not None:
+                    root_teacher_prefetch.before_teachers()
                 depth_forward_time = 0
                 if use_depth_align:
                     with torch.no_grad():
@@ -799,6 +803,8 @@ def main():
                         future_video_cls_targets=future_video_cls_targets,
                         future_video_current_patch=future_video_current_dino,
                     )
+                    if root_teacher_prefetch is not None:
+                        root_teacher_prefetch.after_forward()
                     if len(model_outputs) == 6:
                         loss, vla_loss, depth_loss, seq_wise_loss, loss_log, depth_preds = model_outputs
                         future_depth_loss = 0

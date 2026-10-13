@@ -404,6 +404,10 @@ class TrainingArguments:
         default=True,
         metadata={"help": "Enable forward prefetch for FSDP1."},
     )
+    root_teacher_prefetch: bool = field(
+        default=True,
+        metadata={"help": "Overlap the CUDA FSDP2 student root unshard with teacher forwards."},
+    )
     enable_fsdp_offload: bool = field(
         default=False,
         metadata={"help": "Enable CPU offload for FSDP1."},
