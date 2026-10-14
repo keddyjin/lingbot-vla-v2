@@ -423,6 +423,13 @@ def get_video_target(video_teacher, pil_images, future_pil_images, config, effec
         "current_patch": current_patch.detach().to(dtype=torch.bfloat16),
     }
 
+def _moge_skip_unused_normal():
+    value = os.environ.get("LINGBOT_MOGE_SKIP_UNUSED_NORMAL", "0")
+    if value not in {"0", "1"}:
+        raise ValueError("LINGBOT_MOGE_SKIP_UNUSED_NORMAL must be literal 0 or 1")
+    return value == "1"
+
+
 def get_depth_target(model_type, depth_model, pil_images):
     if model_type != 'MoRGBD':
         raise ValueError(f"Only Lingbot-Depth depth targets are supported, got {model_type!r}.")
@@ -431,7 +438,10 @@ def get_depth_target(model_type, depth_model, pil_images):
 
     input_images = _rgb_to_unit_float(images)
     moge_model, morgbd_model = depth_model
-    output_moge = moge_model.infer(input_images, resolution_level=3, num_tokens=256, apply_mask=False)
+    if _moge_skip_unused_normal():
+        output_moge = moge_model.infer(input_images, resolution_level=3, num_tokens=256, apply_mask=False, return_normal=False)
+    else:
+        output_moge = moge_model.infer(input_images, resolution_level=3, num_tokens=256, apply_mask=False)
     depth_pred = output_moge['depth'].squeeze().detach().clone() # moge2
     depth_pred = torch.nan_to_num(depth_pred, nan=0.0, posinf=0.0, neginf=0.0)
     depth_pred *= 1

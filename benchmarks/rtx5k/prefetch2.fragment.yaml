@@ -1,0 +1,3 @@
+# Merge this key into the data section of your existing training configuration.
+data:
+  prefetch_factor: 2
