@@ -34,6 +34,7 @@ from lingbotvla.optim import build_lr_scheduler, build_muon_optimizer, build_opt
 from lingbotvla.optim import build_flex_shard_dist_muon_optimizer
 from lingbotvla.utils import helper
 from lingbotvla.utils.fsdp_root_teacher_prefetch import RootTeacherPrefetch
+from lingbotvla.utils.fsdp_decoder_backward_retain import decoder_backward_retain
 from lingbotvla.utils.async_hf_checkpoint import AsyncHFCheckpointSaver
 from lingbotvla.utils.arguments import EvalArguments, DataArguments, ModelArguments, TrainingArguments, parse_args, save_args
 from lingbotvla.utils.dist_utils import all_reduce
@@ -863,7 +864,8 @@ def main():
                     avg_lang_length = micro_batch['lang_masks'].sum(dim=-1).float().mean()
 
                 with model_bwd_context:
-                    loss.backward()
+                    with decoder_backward_retain(model):
+                        loss.backward()
 
                 if batched_train_metrics:
                     pending_train_metrics = tuple(
