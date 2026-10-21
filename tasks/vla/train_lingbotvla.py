@@ -56,6 +56,31 @@ logger = helper.create_logger(__name__)
 # except Exception as e:
 #     logger.info_rank0(f"Failed to import aistudio_tracking: {repr(e)}.")
 
+def _batched_train_metrics_enabled():
+    value = os.environ.get("LINGBOT_BATCHED_TRAIN_METRICS", "1").strip().lower()
+    if value not in {"0", "off", "false", "1", "on", "true"}:
+        raise ValueError("LINGBOT_BATCHED_TRAIN_METRICS must be 0/off/false or 1/on/true")
+    return value in {"1", "on", "true"}
+
+
+
+@torch.compiler.disable
+def _batched_train_scalar_values(values):
+    """Read detached scalars together without narrowing their Python values."""
+    tensor_positions = [i for i, value in enumerate(values) if torch.is_tensor(value)]
+    result = list(values)
+    if tensor_positions:
+        device = values[tensor_positions[0]].device
+        packed = torch.stack([
+            values[i].detach().to(device=device, dtype=torch.float64).reshape(())
+            for i in tensor_positions
+        ])
+        for i, value in zip(tensor_positions, packed.cpu().tolist()):
+            result[i] = value
+    return result
+
+
+
 def get_param_groups(model: "torch.nn.Module", default_lr: float, vit_lr: float):
     vit_params, other_params = [], []
     for name, param in model.named_parameters():
@@ -333,6 +358,7 @@ class Arguments:
 
 def main():
     args = parse_args(Arguments)
+    batched_train_metrics_requested = _batched_train_metrics_enabled()
     logger.info(f"Process rank: {args.train.global_rank}, world size: {args.train.world_size}")
     logger.info_rank0(json.dumps(asdict(args), indent=2))
     torch.cuda.set_device(f"cuda:{args.train.local_rank}")
@@ -740,6 +766,8 @@ def main():
                 helper.print_example(example=micro_batches[0], rank=args.train.local_rank)
 
             total_loss, total_vla_loss, total_depth_loss, total_future_depth_loss, total_future_video_loss, total_seq_wise_loss, total_router_z_loss = 0, 0, 0, 0, 0, 0, 0
+            batched_train_metrics = batched_train_metrics_requested and len(micro_batches) == 1
+            pending_train_metrics = None
             depth_targets, depth_preds = None, None
             future_depth_targets, future_depth_preds = None, None
             future_video_targets, future_video_preds = None, None
@@ -837,18 +865,24 @@ def main():
                 with model_bwd_context:
                     loss.backward()
 
-                total_loss += loss.item()
-                total_vla_loss += vla_loss.item()
-                if not (isinstance(depth_loss, int) or isinstance(depth_loss, float)):
-                    total_depth_loss += depth_loss.item()
-                if not (isinstance(future_depth_loss, int) or isinstance(future_depth_loss, float)):
-                    total_future_depth_loss += future_depth_loss.item()
-                if not (isinstance(future_video_loss, int) or isinstance(future_video_loss, float)):
-                    total_future_video_loss += future_video_loss.item()
-                if not (isinstance(seq_wise_loss, int) or isinstance(seq_wise_loss, float)):
-                    total_seq_wise_loss += seq_wise_loss.item()
-                if not (isinstance(router_z_loss, int) or isinstance(router_z_loss, float)):
-                    total_router_z_loss += router_z_loss.item() / len(micro_batches)
+                if batched_train_metrics:
+                    pending_train_metrics = tuple(
+                        value.detach() if i < 2 or not (isinstance(value, int) or isinstance(value, float)) else 0
+                        for i, value in enumerate((loss, vla_loss, depth_loss, future_depth_loss, future_video_loss, seq_wise_loss, router_z_loss))
+                    )
+                else:
+                    total_loss += loss.item()
+                    total_vla_loss += vla_loss.item()
+                    if not (isinstance(depth_loss, int) or isinstance(depth_loss, float)):
+                        total_depth_loss += depth_loss.item()
+                    if not (isinstance(future_depth_loss, int) or isinstance(future_depth_loss, float)):
+                        total_future_depth_loss += future_depth_loss.item()
+                    if not (isinstance(future_video_loss, int) or isinstance(future_video_loss, float)):
+                        total_future_video_loss += future_video_loss.item()
+                    if not (isinstance(seq_wise_loss, int) or isinstance(seq_wise_loss, float)):
+                        total_seq_wise_loss += seq_wise_loss.item()
+                    if not (isinstance(router_z_loss, int) or isinstance(router_z_loss, float)):
+                        total_router_z_loss += router_z_loss.item() / len(micro_batches)
                 del micro_batch
             # --- TEMP gate-gradient probe (GATE_GRAD_PROBE=1): dump router gate grad
             # magnitude vs routed-expert grad, plus per-expert symmetry, pre-clip. ---
@@ -888,7 +922,10 @@ def main():
             else:
                 max_grad_norm = args.train.max_grad_norm
             if args.train.data_parallel_mode == "fsdp1":
-                grad_norm = model.clip_grad_norm_(max_grad_norm).item()
+                if batched_train_metrics:
+                    grad_norm = model.clip_grad_norm_(max_grad_norm)
+                else:
+                    grad_norm = model.clip_grad_norm_(max_grad_norm).item()
             elif hasattr(model, '_ep_param_set'):
                 from lingbotvla.distributed.fsdp2.clip_grad_norm import ep_fsdp2_clip_grad_norm
                 grad_norm = ep_fsdp2_clip_grad_norm(model, max_grad_norm)
@@ -899,7 +936,21 @@ def main():
             lr_scheduler.step()
             optimizer.zero_grad()
             if hasattr(grad_norm, "full_tensor"):
-                grad_norm = grad_norm.full_tensor().item()
+                if batched_train_metrics:
+                    grad_norm = grad_norm.full_tensor()
+                else:
+                    grad_norm = grad_norm.full_tensor().item()
+
+            if batched_train_metrics:
+                loss_values = _batched_train_scalar_values((*pending_train_metrics, avg_lang_length, grad_norm))
+                total_loss += loss_values[0]
+                total_vla_loss += loss_values[1]
+                total_depth_loss += loss_values[2]
+                total_future_depth_loss += loss_values[3]
+                total_future_video_loss += loss_values[4]
+                total_seq_wise_loss += loss_values[5]
+                total_router_z_loss += loss_values[6] / len(micro_batches)
+                avg_lang_length, grad_norm = loss_values[7:]
 
             # collect mean loss across data parallel group
             total_loss, total_vla_loss, total_depth_loss, total_future_depth_loss, total_future_video_loss, total_seq_wise_loss, total_router_z_loss, avg_lang_length, grad_norm = all_reduce((total_loss, total_vla_loss, total_depth_loss, total_future_depth_loss, total_future_video_loss, total_seq_wise_loss, total_router_z_loss, avg_lang_length, grad_norm), group=get_parallel_state().fsdp_group)

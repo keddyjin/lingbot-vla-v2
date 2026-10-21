@@ -1,3 +1,4 @@
+import os
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -257,6 +258,91 @@ class Qwen3VLForConditionalGeneration(_Qwen3VLForConditionalGeneration, Generati
         self.post_init()
 
 
+def _vision_geometry_cache_enabled():
+    return os.environ.get("LINGBOT_VISION_GEOMETRY_CACHE", "1").strip().lower() in {"1", "true", "yes", "on"}
+
+
+@torch.compiler.disable
+def _vision_grid_key(grid_thw):
+    if not isinstance(grid_thw, torch.Tensor) or grid_thw.ndim != 2 or grid_thw.shape[1] != 3:
+        return None
+    if grid_thw.dtype not in (torch.int32, torch.int64) or grid_thw.shape[0] == 0:
+        return None
+    return tuple(tuple(row) for row in grid_thw.detach().cpu().tolist())
+
+
+@torch.compiler.disable
+def _vision_interpolation_geometry(self, grid_key):
+    weight = self.pos_embed.weight
+    merge_size = self.config.spatial_merge_size
+    if grid_key is None or any(row != grid_key[0] for row in grid_key):
+        return None
+    if any(t <= 0 or h <= 0 or w <= 0 or h % merge_size or w % merge_size for t, h, w in grid_key):
+        return None
+    cache_key = (grid_key, weight.device, weight.dtype, self.num_grid_per_side, merge_size)
+    cached = getattr(self, "_lingbot_vision_interpolation_geometry", None)
+    if cached is not None and cached[0] == cache_key:
+        return cached[1:]
+
+    # Cache only geometry. Position embedding values and their autograd graph
+    # must be computed from the current trainable weight on every invocation.
+    idx_list = [[] for _ in range(4)]
+    weight_list = [[] for _ in range(4)]
+    for _, h, w in grid_key:
+        h_idxs = torch.linspace(0, self.num_grid_per_side - 1, h)
+        w_idxs = torch.linspace(0, self.num_grid_per_side - 1, w)
+        h_idxs_floor = h_idxs.int()
+        w_idxs_floor = w_idxs.int()
+        h_idxs_ceil = (h_idxs.int() + 1).clip(max=self.num_grid_per_side - 1)
+        w_idxs_ceil = (w_idxs.int() + 1).clip(max=self.num_grid_per_side - 1)
+        dh = h_idxs - h_idxs_floor
+        dw = w_idxs - w_idxs_floor
+        base_h = h_idxs_floor * self.num_grid_per_side
+        base_h_ceil = h_idxs_ceil * self.num_grid_per_side
+        indices = [
+            (base_h[None].T + w_idxs_floor[None]).flatten(),
+            (base_h[None].T + w_idxs_ceil[None]).flatten(),
+            (base_h_ceil[None].T + w_idxs_floor[None]).flatten(),
+            (base_h_ceil[None].T + w_idxs_ceil[None]).flatten(),
+        ]
+        weights = [
+            ((1 - dh)[None].T * (1 - dw)[None]).flatten(),
+            ((1 - dh)[None].T * dw[None]).flatten(),
+            (dh[None].T * (1 - dw)[None]).flatten(),
+            (dh[None].T * dw[None]).flatten(),
+        ]
+        for i in range(4):
+            idx_list[i].extend(indices[i].tolist())
+            weight_list[i].extend(weights[i].tolist())
+    idx_tensor = torch.tensor(idx_list, dtype=torch.long, device=weight.device)
+    weight_tensor = torch.tensor(weight_list, dtype=weight.dtype, device=weight.device)
+    split_sizes = tuple(h * w for _, h, w in grid_key)
+    cached = (cache_key, idx_tensor, weight_tensor, split_sizes, grid_key, merge_size)
+    self._lingbot_vision_interpolation_geometry = cached
+    return cached[1:]
+
+
+@torch.compiler.disable
+def _vision_pos_embed_interpolate(self, grid_thw, grid_key):
+    geometry = _vision_interpolation_geometry(self, grid_key)
+    if geometry is None:
+        return self.fast_pos_embed_interpolate(grid_thw)
+    idx_tensor, weight_tensor, split_sizes, grid_rows, merge_size = geometry
+    pos_embeds = self.pos_embed(idx_tensor) * weight_tensor[:, :, None]
+    patch_pos_embeds = pos_embeds[0] + pos_embeds[1] + pos_embeds[2] + pos_embeds[3]
+    chunks = patch_pos_embeds.split(split_sizes)
+    reordered = []
+    for pos_embed, (t, h, w) in zip(chunks, grid_rows):
+        pos_embed = pos_embed.repeat(t, 1)
+        pos_embed = (
+            pos_embed.view(t, h // merge_size, merge_size, w // merge_size, merge_size, -1)
+            .permute(0, 1, 3, 2, 4, 5)
+            .flatten(0, 4)
+        )
+        reordered.append(pos_embed)
+    return torch.cat(reordered)
+
+
 @torch.compiler.disable
 def preprcess_grid_thw(self, grid_thw: torch.Tensor):
     rotary_pos_emb = self.rot_pos_emb(grid_thw)
@@ -273,6 +359,10 @@ def preprcess_grid_thw(self, grid_thw: torch.Tensor):
     cu_seqlens = F.pad(cu_seqlens, (1, 0), value=0)
     split_sizes = (grid_thw.prod(-1) // self.spatial_merge_size**2).tolist()
     max_seqlen = int((cu_seqlens[1:] - cu_seqlens[:-1]).max().item())
+    if _vision_geometry_cache_enabled():
+        self._lingbot_vision_preprocess_receipt = (
+            _vision_grid_key(grid_thw), position_embeddings, cu_seqlens, max_seqlen,
+        )
     return None, position_embeddings, cu_seqlens, split_sizes, max_seqlen
 
 
@@ -288,10 +378,22 @@ def forward_without_grid_thw(
 ) -> torch.Tensor:
     hidden_states = self.patch_embed(hidden_states)
 
-    if pos_embeds is None or position_embeddings is None or cu_seqlens is None or max_seqlen is None:
+    geometry_cache = _vision_geometry_cache_enabled()
+    preprocess_reuse = geometry_cache
+    grid_key = _vision_grid_key(grid_thw) if preprocess_reuse else None
+    receipt = getattr(self, "_lingbot_vision_preprocess_receipt", None) if preprocess_reuse else None
+    cached_preprocess = (
+        receipt is not None and grid_key is not None and receipt[0] == grid_key
+        and receipt[1] is position_embeddings and receipt[2] is cu_seqlens
+        and receipt[3] == max_seqlen
+    )
+    if (pos_embeds is None and not cached_preprocess) or position_embeddings is None or cu_seqlens is None or max_seqlen is None:
         pos_embeds, position_embeddings, cu_seqlens, _, max_seqlen = self.preprcess_grid_thw(grid_thw)
     if pos_embeds is None:
-        pos_embeds = self.fast_pos_embed_interpolate(grid_thw)
+        if geometry_cache:
+            pos_embeds = _vision_pos_embed_interpolate(self, grid_thw, grid_key)
+        else:
+            pos_embeds = self.fast_pos_embed_interpolate(grid_thw)
 
     hidden_states = hidden_states + pos_embeds
     seq_len, _ = hidden_states.size()
